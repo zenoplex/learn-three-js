@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Three from 'three';
 import { Canvas, useFrame } from 'react-three-fiber';
-import useDatGui from '~/hooks/useDatGui';
+import useDatGui from '~/components/chapter01/hooks/useDatGui';
 import Controls from '~/components/TrackballControls';
 
 const Plain = (): JSX.Element => {
