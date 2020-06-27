@@ -29,6 +29,7 @@ module.exports = {
     'react/self-closing-comp': 'error',
     'react/jsx-props-no-spreading': 'error',
     '@typescript-eslint/ban-ts-ignore': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
     'functional/no-return-void': 'off',
   },
 };
