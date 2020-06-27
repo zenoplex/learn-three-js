@@ -4,16 +4,20 @@ import { Canvas } from 'react-three-fiber';
 
 const Plain = (): JSX.Element => {
   return (
-    <mesh visible position={[15, 0, 0]} rotation={[-0.5 * Math.PI, 0, 0]}>
+    <mesh
+      visible
+      position={[15, 0, 0]}
+      rotation={[-0.5 * Math.PI, 0, 0]}
+      receiveShadow>
       <planeGeometry attach="geometry" args={[60, 20]} />
       <meshLambertMaterial attach="material" color={0xaaaaaa} />
     </mesh>
   );
 };
 
-const Box = (): JSX.Element => {
+const Cube = (): JSX.Element => {
   return (
-    <mesh visible position={[-4, 3, 0]}>
+    <mesh visible position={[-4, 2, 0]} castShadow>
       <boxGeometry attach="geometry" args={[4, 4, 4]} />
       <meshLambertMaterial attach="material" color={0xff0000} />
     </mesh>
@@ -22,7 +26,7 @@ const Box = (): JSX.Element => {
 
 const Sphere = (): JSX.Element => {
   return (
-    <mesh visible position={[20, 4, 2]}>
+    <mesh visible position={[20, 4, 2]} castShadow>
       <sphereGeometry attach="geometry" args={[4, 20, 20]} />
       <meshLambertMaterial attach="material" color={0x7777ff} />
     </mesh>
@@ -42,6 +46,10 @@ const MaterialsLight = (): JSX.Element => {
       onCreated={({ gl }) => {
         gl.setClearColor(new Three.Color(0x000000));
       }}>
+      <Plain />
+      <Cube />
+      <Sphere />
+
       <spotLight
         color={0xffffff}
         position={[-40, 40, -15]}
@@ -52,10 +60,7 @@ const MaterialsLight = (): JSX.Element => {
         shadowCameraNear={40}
       />
 
-      <Plain />
-      <Box />
-      <Sphere />
-      <axesHelper args={[20]} />
+      <ambientLight color={0x353535} />
     </Canvas>
   );
 };
