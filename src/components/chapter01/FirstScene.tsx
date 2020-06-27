@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Three from 'three';
 import { Canvas } from 'react-three-fiber';
 
-const BasicSkeleton = (): JSX.Element => {
+const FirstScene = (): JSX.Element => {
   return (
     <Canvas
       camera={{
@@ -34,4 +34,4 @@ const BasicSkeleton = (): JSX.Element => {
   );
 };
 
-export default BasicSkeleton;
+export default FirstScene;
