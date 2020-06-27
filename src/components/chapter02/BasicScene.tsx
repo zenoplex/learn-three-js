@@ -4,16 +4,19 @@ import { Canvas, useFrame } from 'react-three-fiber';
 import Controls from '~/components/TrackballControls';
 import dat from 'dat.gui';
 
-type CubeProps = {
-  readonly size: number;
-};
-
-const useDatGui = () => {
+const useDatGui = (): {
+  readonly cubeCount: number;
+  readonly rotationSpeed: number;
+} => {
+  const [rotationSpeed, setRotationSpeed] = React.useState<number>(0.02);
   const [cubeCount, setCubeCount] = React.useState<number>(0);
   const gui = React.useMemo(() => new dat.GUI(), []);
 
   React.useEffect(() => {
-    gui.add({ cubeCount }, 'cubeCount', 0, 100).step(1).onChange(setCubeCount);
+    gui
+      .add({ rotationSpeed }, 'rotationSpeed', 0, 0.5)
+      .onChange(setRotationSpeed);
+    gui.add({ cubeCount }, 'cubeCount', 0, 1000).step(1).onChange(setCubeCount);
 
     return () => {
       gui.destroy();
@@ -21,54 +24,84 @@ const useDatGui = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { cubeCount };
+  return { cubeCount, rotationSpeed };
 };
 
-const Cube = ({ size }: CubeProps): JSX.Element => {
+type CubeProps = {
+  readonly size: number;
+  // eslint-disable-next-line functional/prefer-readonly-type
+  readonly position: [number, number, number];
+  readonly rotationSpeed: number;
+};
+
+const Cube = ({ size, position, rotationSpeed }: CubeProps): JSX.Element => {
+  const ref = React.useRef<Three.Mesh>();
+  useFrame(() => {
+    if (ref.current) {
+      /* eslint-disable functional/immutable-data */
+      ref.current.rotation.x += rotationSpeed;
+      ref.current.rotation.y += rotationSpeed;
+      ref.current.rotation.z += rotationSpeed;
+      /* eslint-enable functional/immutable-data */
+    }
+  });
+
   return (
-    <mesh
-      visible
-      castShadow
-      position={[
-        -30 + Math.round(Math.random() * 60),
-        Math.round(Math.random() * 5),
-        -20 + Math.round(Math.random() * 40),
-      ]}>
+    <mesh ref={ref} visible castShadow position={position}>
       <boxGeometry attach="geometry" args={[size, size, size]} />
       <meshLambertMaterial attach="material" color={Math.random() * 0xffffff} />
     </mesh>
   );
 };
 
-const Plain = (): JSX.Element => {
+type PlaneProps = {
+  readonly width: number;
+  readonly height: number;
+};
+
+const Plain = ({ width, height }: PlaneProps): JSX.Element => {
   return (
     <mesh
       visible
       position={[0, 0, 0]}
       rotation={[-0.5 * Math.PI, 0, 0]}
       receiveShadow>
-      <planeGeometry attach="geometry" args={[60, 40, 1, 1]} />
+      <planeGeometry attach="geometry" args={[width, height, 1, 1]} />
       <meshLambertMaterial attach="material" color={0xffffff} />
     </mesh>
   );
 };
 
+const planeWidth = 60;
+const planeHeight = 40;
+
 const BasicScene = (): JSX.Element => {
   const [cubes, setCubes] = React.useState<readonly JSX.Element[]>([]);
-  const { cubeCount } = useDatGui();
+  const { cubeCount, rotationSpeed } = useDatGui();
 
   React.useEffect(() => {
     if (cubes.length < cubeCount) {
       const len = cubeCount - cubes.length;
-      const a = Array.from(new Array(len)).map((_, index) => {
-        return <Cube size={1} key={cubes.length + index} />;
+      const additionalCubes = Array.from(new Array(len)).map((_, index) => {
+        return (
+          <Cube
+            size={Math.ceil(Math.random() * 3)}
+            key={cubes.length + index}
+            position={[
+              -30 + Math.round(Math.random() * planeWidth),
+              Math.round(Math.random() * 5),
+              -20 + Math.round(Math.random() * planeHeight),
+            ]}
+            rotationSpeed={rotationSpeed}
+          />
+        );
       });
 
-      setCubes(cubes.concat(a));
+      setCubes(cubes.concat(additionalCubes));
     } else if (cubes.length > cubeCount) {
       setCubes(cubes.slice(0, cubeCount));
     }
-  }, [cubeCount, cubes]);
+  }, [cubeCount, cubes, rotationSpeed]);
 
   return (
     <Canvas
@@ -83,7 +116,7 @@ const BasicScene = (): JSX.Element => {
       onCreated={({ gl }) => {
         gl.setClearColor(new Three.Color(0x000000));
       }}>
-      <Plain />
+      <Plain width={planeWidth} height={planeHeight} />
 
       {cubes}
 
