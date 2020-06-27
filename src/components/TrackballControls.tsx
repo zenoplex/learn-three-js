@@ -5,6 +5,10 @@ import { extend, useThree, useFrame } from 'react-three-fiber';
 // Must extends Three to interpret TrackballControls
 extend({ TrackballControls });
 
+const A_KEY = 65;
+const S_KEY = 83;
+const D_KEY = 68;
+
 const Controls = (): JSX.Element => {
   const ref = React.useRef<TrackballControls>();
   const { camera, gl } = useThree();
@@ -24,7 +28,11 @@ const Controls = (): JSX.Element => {
       zoomSpeed={1.2}
       panSpeed={0.8}
       dynamicDampingFactor={0.3}
-      keys={[65, 83, 68]}
+      keys={[
+        A_KEY, //orbit
+        S_KEY, //zoom
+        D_KEY, //pan
+      ]}
     />
   );
 };
