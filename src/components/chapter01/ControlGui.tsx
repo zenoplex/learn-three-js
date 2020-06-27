@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as Three from 'three';
 import { Canvas, useFrame } from 'react-three-fiber';
 import useDatGui from '~/hooks/useDatGui';
+import Controls from '~/components/TrackballControls';
 
 const Plain = (): JSX.Element => {
   return (
@@ -88,6 +89,8 @@ const ControlGui = (): JSX.Element => {
       <spotLight color={0xffffff} position={[-10, 20, -5]} castShadow />
 
       <ambientLight color={0x353535} />
+
+      <Controls />
     </Canvas>
   );
 };
