@@ -3,6 +3,7 @@ import * as Three from 'three';
 import { Canvas, useFrame } from 'react-three-fiber';
 import Controls from '~/components/TrackballControls';
 import dat from 'dat.gui';
+import { Stats } from 'drei';
 
 const useDatGui = (): {
   readonly cubeCount: number;
@@ -157,6 +158,7 @@ const BasicScene = (): JSX.Element => {
       />
       <ambientLight color={0x3c3c3c} />
       <Controls />
+      <Stats />
     </Canvas>
   );
 };
