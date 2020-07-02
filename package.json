@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "dat.gui": "^0.7.7",
+    "drei": "0.0.60",
     "next": "9.4.4",
     "react": "16.13.1",
     "react-dom": "16.13.1",
