@@ -29,12 +29,18 @@ const useDatGui = (): {
 
 type CubeProps = {
   readonly size: number;
+  readonly color: number;
   // eslint-disable-next-line functional/prefer-readonly-type
   readonly position: [number, number, number];
   readonly rotationSpeed: number;
 };
 
-const Cube = ({ size, position, rotationSpeed }: CubeProps): JSX.Element => {
+const Cube = ({
+  size,
+  color,
+  position,
+  rotationSpeed,
+}: CubeProps): JSX.Element => {
   const ref = React.useRef<Three.Mesh>();
   useFrame(() => {
     if (ref.current) {
@@ -49,7 +55,7 @@ const Cube = ({ size, position, rotationSpeed }: CubeProps): JSX.Element => {
   return (
     <mesh ref={ref} visible castShadow position={position}>
       <boxGeometry attach="geometry" args={[size, size, size]} />
-      <meshLambertMaterial attach="material" color={Math.random() * 0xffffff} />
+      <meshLambertMaterial attach="material" color={color} />
     </mesh>
   );
 };
@@ -72,35 +78,48 @@ const Plain = ({ width, height }: PlaneProps): JSX.Element => {
   );
 };
 
+type CubuData = {
+  readonly size: number;
+  // eslint-disable-next-line functional/prefer-readonly-type
+  readonly position: [number, number, number];
+  readonly color: number;
+};
+
 const planeWidth = 60;
 const planeHeight = 40;
 
 const BasicScene = (): JSX.Element => {
-  const [cubes, setCubes] = React.useState<readonly JSX.Element[]>([]);
+  const [cubes, setCubes] = React.useState<readonly CubuData[]>([]);
   const { cubeCount, rotationSpeed } = useDatGui();
 
   React.useEffect(() => {
-    if (cubes.length < cubeCount) {
-      const len = cubeCount - cubes.length;
-      const additionalCubes = Array.from(new Array(len)).map((_, index) => {
-        return (
-          <Cube
-            size={Math.ceil(Math.random() * 3)}
-            key={cubes.length + index}
-            position={[
-              -30 + Math.round(Math.random() * planeWidth),
-              Math.round(Math.random() * 5),
-              -20 + Math.round(Math.random() * planeHeight),
-            ]}
-            rotationSpeed={rotationSpeed}
-          />
-        );
-      });
+    const updateCubes = (): readonly CubuData[] => {
+      if (cubes.length === cubeCount) return cubes;
 
-      setCubes(cubes.concat(additionalCubes));
-    } else if (cubes.length > cubeCount) {
-      setCubes(cubes.slice(0, cubeCount));
-    }
+      const newCubes =
+        cubes.length < cubeCount
+          ? cubes.concat(
+              new Array(cubeCount - cubes.length).fill(null).map(() => {
+                return {
+                  size: Math.ceil(Math.random() * 3),
+                  position: [
+                    -30 + Math.round(Math.random() * planeWidth),
+                    Math.round(Math.random() * 5),
+                    -20 + Math.round(Math.random() * planeHeight),
+                  ],
+                  color: Math.random() * 0xffffff,
+                };
+              }),
+            )
+          : cubes.slice(0, cubeCount);
+      return newCubes;
+    };
+
+    const updatedCubes = updateCubes();
+
+    updatedCubes.map((cube) => ({ ...cube, rotationSpeed }));
+
+    setCubes(updatedCubes);
   }, [cubeCount, cubes, rotationSpeed]);
 
   return (
@@ -117,9 +136,17 @@ const BasicScene = (): JSX.Element => {
         gl.setClearColor(new Three.Color(0x000000));
       }}>
       <Plain width={planeWidth} height={planeHeight} />
-
-      {cubes}
-
+      {cubes.map(({ size, color, position }, index) => {
+        return (
+          <Cube
+            key={index}
+            size={size}
+            color={color}
+            position={position}
+            rotationSpeed={rotationSpeed}
+          />
+        );
+      })}
       <spotLight
         color={0xffffff}
         intensity={1.2}
@@ -128,7 +155,6 @@ const BasicScene = (): JSX.Element => {
         position={[-40, 60, -10]}
         castShadow
       />
-
       <ambientLight color={0x3c3c3c} />
       <Controls />
     </Canvas>
