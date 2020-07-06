@@ -1,7 +1,15 @@
 import * as React from 'react';
 import Head from 'next/head';
+import { GetServerSideProps } from 'next';
+import Link from 'next/link';
+import { promises as fsPromises } from 'fs';
+import path from 'path';
 
-export default function Home(): JSX.Element {
+type Props = {
+  readonly links: readonly string[];
+};
+
+export const Page = ({ links }: Props): JSX.Element => {
   return (
     <div className="container">
       <Head>
@@ -10,41 +18,15 @@ export default function Home(): JSX.Element {
       </Head>
 
       <main>
-        <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className="description">
-          Get started by editing <code>pages/index.js</code>
-        </p>
-
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="card">
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card">
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        <ul>
+          {links.map((link) => (
+            <li key={link}>
+              <Link href={link}>
+                <a>{link}</a>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </main>
 
       <footer>
@@ -58,4 +40,38 @@ export default function Home(): JSX.Element {
       </footer>
     </div>
   );
-}
+};
+
+export default Page;
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const getFiles = async (dir: string): Promise<readonly string[]> => {
+    const dirents = await fsPromises.readdir(dir, { withFileTypes: true });
+    const files: readonly (readonly string[])[] = await Promise.all(
+      // @ts-expect-error below returns nested array of path strings
+      dirents.map((dirent) => {
+        const res = path.resolve(dir, dirent.name);
+        return dirent.isDirectory() ? getFiles(res) : res;
+      }),
+    );
+
+    return files.flat();
+  };
+
+  const targetDir = path.join(process.cwd(), 'src/pages');
+  const links: readonly string[] = (await getFiles(targetDir))
+    // eslint-disable-next-line functional/prefer-readonly-type
+    .reduce<readonly string[]>((acc, filename) => {
+      const match = filename.match(/(chapter\d+\/.+)\.tsx$/);
+      const filePath = match?.[1];
+      if (!filePath) return acc;
+
+      return [...acc, filePath];
+    }, []);
+
+  return {
+    props: {
+      links,
+    },
+  };
+};
