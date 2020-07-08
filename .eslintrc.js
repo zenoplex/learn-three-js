@@ -31,5 +31,6 @@ module.exports = {
     '@typescript-eslint/ban-ts-ignore': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     'functional/no-return-void': 'off',
+    'functional/no-mixed-type': 'off',
   },
 };
