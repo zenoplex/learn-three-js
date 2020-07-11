@@ -67,6 +67,10 @@ type CubuData = {
 const planeWidth = 60;
 const planeHeight = 40;
 
+const datGuiOptions = {
+  rotationSpeed: { min: 0, max: 0.5 },
+};
+
 const Page = (): JSX.Element => {
   const [cubes, setCubes] = React.useState<readonly CubuData[]>([]);
   const [state, setState] = React.useState({
@@ -145,7 +149,11 @@ const Page = (): JSX.Element => {
         <Stats />
       </Canvas>
       {/* @ts-expect-error jsx generics not working after dynamic */}
-      <DatGui<typeof state> data={state} onChange={setState} />
+      <DatGui<typeof state>
+        data={state}
+        onChange={setState}
+        options={datGuiOptions}
+      />
     </>
   );
 };

@@ -73,6 +73,11 @@ const Sphere = ({ bouncingSpeed = 0.04 }: SphereProps): JSX.Element => {
   );
 };
 
+const datGuiOptions = {
+  rotationSpeed: { min: 0, max: 0.5 },
+  bouncingSpeed: { min: 0, max: 0.5 },
+};
+
 const Page = (): JSX.Element => {
   const [state, setState] = React.useState({
     rotationSpeed: 0.02,
@@ -104,7 +109,11 @@ const Page = (): JSX.Element => {
       </Canvas>
 
       {/* @ts-expect-error jsx generics not working after dynamic */}
-      <DatGui<typeof state> data={state} onChange={setState} />
+      <DatGui<typeof state>
+        data={state}
+        onChange={setState}
+        options={datGuiOptions}
+      />
     </>
   );
 };
