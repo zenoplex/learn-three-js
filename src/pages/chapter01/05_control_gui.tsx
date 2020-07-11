@@ -3,7 +3,9 @@ import * as Three from 'three';
 import { Canvas, useFrame } from 'react-three-fiber';
 import dynamic from 'next/dynamic';
 
-const DatGui = dynamic(() => import('~/components/DatGui'), { ssr: false });
+const DatGui = dynamic(() => import('~/components/DatGui'), {
+  ssr: false,
+});
 
 const Controls = dynamic(() => import('~/components/TrackballControls'), {
   ssr: false,
@@ -72,17 +74,13 @@ const Sphere = ({ bouncingSpeed = 0.04 }: SphereProps): JSX.Element => {
 };
 
 const Page = (): JSX.Element => {
-  const [{ rotationSpeed, bouncingSpeed }, setState] = React.useState<
-    Record<string, string | number | boolean>
-  >({
+  const [state, setState] = React.useState({
     rotationSpeed: 0.02,
     bouncingSpeed: 0.05,
   });
 
   return (
     <>
-      {/* TODO: Jsx generics not working as intended. Removed for now */}
-      <DatGui data={{ rotationSpeed, bouncingSpeed }} onChange={setState} />
       <Canvas
         camera={{
           fov: 45,
@@ -95,8 +93,8 @@ const Page = (): JSX.Element => {
           gl.setClearColor(new Three.Color(0x000000));
         }}>
         <Plain />
-        <Cube rotationSpeed={rotationSpeed as number} />
-        <Sphere bouncingSpeed={bouncingSpeed as number} />
+        <Cube rotationSpeed={state.rotationSpeed} />
+        <Sphere bouncingSpeed={state.bouncingSpeed} />
 
         <spotLight color={0xffffff} position={[-10, 20, -5]} castShadow />
 
@@ -104,6 +102,9 @@ const Page = (): JSX.Element => {
 
         <Controls />
       </Canvas>
+
+      {/* @ts-expect-error jsx generics not working after dynamic */}
+      <DatGui<typeof state> data={state} onChange={setState} />
     </>
   );
 };

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import dat from 'dat.gui';
 
-type StateObject = Record<string, string | number | boolean>;
+type StateObject = { readonly [key: string]: string | number | boolean };
 
 // Dirty implementation to use dat.gui with react
 // This needs to be loaded via ssr disabled to avoid window error
@@ -26,12 +26,12 @@ const useDatGui = <T extends StateObject>(
 
 type Props<T extends StateObject> = {
   readonly data: T;
-  readonly onChange: (data: T) => void;
+  readonly onChange: (_: T) => void;
 };
 
-function DatGui<T extends StateObject>({ data, onChange }: Props<T>): null {
+const DatGui = <T extends StateObject>({ data, onChange }: Props<T>): null => {
   useDatGui(data, onChange);
   return null;
-}
+};
 
 export default DatGui;
