@@ -23,261 +23,91 @@ const Plain = ({ width, height }: PlaneProps): JSX.Element => {
   );
 };
 
-type MeshProps = {
+type AbstractShapeProps = {
+  readonly geometry: Three.Geometry | Three.BufferGeometry;
+  readonly material: Three.Material;
   // eslint-disable-next-line functional/prefer-readonly-type
   readonly position: [number, number, number];
+  readonly castShadow?: boolean;
 };
 
-const Cylinder = ({ position }: MeshProps): JSX.Element => {
-  // Note: Do not memoize like this unless needed. Its better to have variable outside react
-  const geom = React.useMemo(
-    () => new Three.CylinderBufferGeometry(1, 4, 4),
-    [],
-  );
-
+const AbstractShape = ({
+  geometry,
+  position,
+  material,
+  castShadow,
+}: AbstractShapeProps): JSX.Element => {
   return (
-    <>
-      <mesh position={position} geometry={geom} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh position={position} geometry={geom}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const Box = ({ position }: MeshProps): JSX.Element => {
-  const geom = React.useMemo(() => new Three.BoxBufferGeometry(2, 2, 2), []);
-
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const Sphere = ({ position }: MeshProps): JSX.Element => {
-  const geom = React.useMemo(() => new Three.SphereBufferGeometry(2), []);
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const Icosahedron = ({ position }: MeshProps): JSX.Element => {
-  const geom = React.useMemo(() => new Three.IcosahedronBufferGeometry(4), []);
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const Convex = ({ position }: MeshProps): JSX.Element => {
-  const geom = React.useMemo(() => {
-    const points = [
-      new Three.Vector3(2, 2, 2),
-      new Three.Vector3(2, 2, -2),
-      new Three.Vector3(-2, 2, -2),
-      new Three.Vector3(-2, 2, 2),
-      new Three.Vector3(2, -2, 2),
-      new Three.Vector3(2, -2, -2),
-      new Three.Vector3(-2, -2, -2),
-      new Three.Vector3(-2, -2, 2),
-    ];
-    return new ConvexGeometry(points);
-  }, []);
-
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const Lathe = ({ position }: MeshProps): JSX.Element => {
-  const detail = 0.1;
-  const radius = 3;
-
-  const geom = React.useMemo(() => {
-    const points = new Array(Math.floor(Math.PI / detail))
-      .fill(null)
-      .map((_, index) => {
-        const angle = index * detail;
-        return new Three.Vector2(
-          Math.cos(angle) * radius,
-          Math.sin(angle) * radius,
-        );
-      });
-
-    return new Three.LatheBufferGeometry(points, 12);
-  }, []);
-
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const Octahedron = ({ position }: MeshProps): JSX.Element => {
-  const geom = React.useMemo(() => new Three.OctahedronGeometry(3), []);
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const Parametric = ({ position }: MeshProps): JSX.Element => {
-  const geom = React.useMemo(
-    () => new Three.ParametricGeometry(ParametricGeometries.mobius3d, 20, 10),
-    [],
-  );
-
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const Tetrahedron = ({ position }: MeshProps): JSX.Element => {
-  const geom = React.useMemo(() => new Three.TetrahedronGeometry(3), []);
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const Torus = ({ position }: MeshProps): JSX.Element => {
-  const geom = React.useMemo(() => new Three.TorusGeometry(3, 1, 10, 10), []);
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
-  );
-};
-
-const TorusKnot = ({ position }: MeshProps): JSX.Element => {
-  const geom = React.useMemo(
-    () => new Three.TorusKnotGeometry(3, 0.5, 50, 20),
-    [],
-  );
-  return (
-    <>
-      <mesh geometry={geom} position={position} castShadow>
-        <meshLambertMaterial
-          attach="material"
-          color={Math.random() * 0xffffff}
-        />
-      </mesh>
-      <mesh geometry={geom} position={position}>
-        <meshBasicMaterial attach="material" color={0x000000} wireframe />
-      </mesh>
-    </>
+    <mesh
+      geometry={geometry}
+      material={material}
+      position={position}
+      castShadow={castShadow}
+    />
   );
 };
 
 const planeWidth = 60;
 const planeHeight = 40;
 
+const cylinderGeometry = new Three.CylinderBufferGeometry(1, 4, 4);
+const boxGeometry = new Three.BoxBufferGeometry(2, 2, 2);
+const sphereGeometry = new Three.SphereBufferGeometry(2);
+const icosahedreonGeometry = new Three.IcosahedronBufferGeometry(4);
+const convexGeometry = new ConvexGeometry([
+  new Three.Vector3(2, 2, 2),
+  new Three.Vector3(2, 2, -2),
+  new Three.Vector3(-2, 2, -2),
+  new Three.Vector3(-2, 2, 2),
+  new Three.Vector3(2, -2, 2),
+  new Three.Vector3(2, -2, -2),
+  new Three.Vector3(-2, -2, -2),
+  new Three.Vector3(-2, -2, 2),
+]);
+const detail = 0.1;
+const radius = 3;
+const points = new Array(Math.floor(Math.PI / detail))
+  .fill(null)
+  .map((_, index) => {
+    const angle = index * detail;
+    return new Three.Vector2(
+      Math.cos(angle) * radius,
+      Math.sin(angle) * radius,
+    );
+  });
+const latheGeometry = new Three.LatheBufferGeometry(points, 12);
+const octahedronGeometry = new Three.OctahedronBufferGeometry(3);
+const parametricGeometry = new Three.ParametricBufferGeometry(
+  ParametricGeometries.mobius3d,
+  20,
+  10,
+);
+const tetrahedronGeometry = new Three.TetrahedronBufferGeometry(3);
+const torusGeometry = new Three.TorusBufferGeometry(3, 1, 10, 10);
+const torusKnotGeometry = new Three.TorusKnotBufferGeometry(3, 0.5, 50, 20);
+const geoms = [
+  cylinderGeometry,
+  boxGeometry,
+  sphereGeometry,
+  icosahedreonGeometry,
+  convexGeometry,
+  latheGeometry,
+  octahedronGeometry,
+  parametricGeometry,
+  tetrahedronGeometry,
+  torusGeometry,
+  torusKnotGeometry,
+];
+const wireframeMaterial = new Three.MeshBasicMaterial({
+  color: 0x000000,
+  wireframe: true,
+});
 const colCount = 4;
 
 const Page = (): JSX.Element => {
-  const meshes = [
-    Cylinder,
-    Box,
-    Sphere,
-    Icosahedron,
-    Convex,
-    Lathe,
-    Octahedron,
-    Parametric,
-    Tetrahedron,
-    Torus,
-    TorusKnot,
-  ].map((mesh, index) => {
+  const meshes = geoms.map((geometry, index) => {
     return {
-      Component: mesh,
+      geometry,
       position: [
         -24 + (index % colCount) * 12,
         4,
@@ -303,8 +133,24 @@ const Page = (): JSX.Element => {
         }}>
         <Plain width={planeWidth} height={planeHeight} />
 
-        {meshes.map(({ Component, position }, index) => (
-          <Component key={index} position={position} />
+        {meshes.map(({ geometry, position }, index) => (
+          <React.Fragment key={index}>
+            <AbstractShape
+              geometry={geometry}
+              position={position}
+              material={
+                new Three.MeshLambertMaterial({
+                  color: Math.random() * 0xffffff,
+                })
+              }
+              castShadow
+            />
+            <AbstractShape
+              geometry={geometry}
+              position={position}
+              material={wireframeMaterial}
+            />
+          </React.Fragment>
         ))}
 
         <ambientLight color={0x555555} />
@@ -326,7 +172,5 @@ const Page = (): JSX.Element => {
     </>
   );
 };
-
-new Three.SpotLight();
 
 export default Page;
