@@ -55,7 +55,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
       }),
     );
 
-    return files.flat();
+    // with node 12, we could use Array.prototype.flat but having problem with module resolution (react-dat-gui)
+    return ([] as readonly string[]).concat(...files);
   };
 
   const targetDir = path.join(process.cwd(), 'src/pages');

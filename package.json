@@ -14,9 +14,9 @@
     "drei": "0.0.60",
     "next": "9.4.4",
     "react": "16.13.1",
+    "react-dat-gui": "^4.0.3",
     "react-dom": "16.13.1",
     "react-three-fiber": "^4.2.12",
-    "react-three-gui": "^0.1.5",
     "three": "^0.118.3"
   },
   "devDependencies": {
@@ -25,13 +25,14 @@
     "@types/react": "^16.9.41",
     "@typescript-eslint/eslint-plugin": "^3.4.0",
     "@typescript-eslint/parser": "^3.4.0",
-    "babel-plugin-styled-components": "^1.10.7",
+    "@zeit/next-css": "^1.0.1",
     "eslint": "^7.3.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-functional": "^3.0.1",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^4.0.4",
+    "next-compose-plugins": "^2.2.0",
     "next-transpile-modules": "^3.3.0",
     "prettier": "^2.0.5",
     "typescript": "^3.9.5"
