@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Three from 'three';
 import { Canvas } from 'react-three-fiber';
 import { Stats, TrackballControls } from 'drei';
-import { useControl, Controls } from 'react-three-gui';
+import DatGui, { DatNumber, DatFolder } from 'react-dat-gui';
 
 type PlaneProps = {
   readonly width: number;
@@ -91,231 +91,32 @@ const lambertMaterial = new Three.MeshLambertMaterial({
 
 const planeWidth = 60;
 const planeHeight = 40;
-const min = -10;
-const max = 10;
 
 const Page = (): JSX.Element => {
-  const v1x = useControl('x', {
-    group: 'verticies1',
-    type: 'number',
-    value: 3,
-    min,
-    max,
-  });
-  const v1y = useControl('y', {
-    group: 'verticies1',
-    type: 'number',
-    value: 5,
-    min,
-    max,
-  });
-  const v1z = useControl('z', {
-    group: 'verticies1',
-    type: 'number',
-    value: 3,
-    min,
-    max,
+  const [state, setState] = React.useState({
+    v1: { x: 3, y: 5, z: 3 },
+    v2: { x: 3, y: 5, z: 0 },
+    v3: { x: 3, y: 0, z: 3 },
+    v4: { x: 3, y: 0, z: 0 },
+    v5: { x: 0, y: 5, z: 0 },
+    v6: { x: 0, y: 5, z: 3 },
+    v7: { x: 0, y: 0, z: 0 },
+    v8: { x: 0, y: 0, z: 3 },
   });
 
-  const v2x = useControl('x', {
-    group: 'verticies2',
-    type: 'number',
-    value: 3,
-    min,
-    max,
-  });
-  const v2y = useControl('y', {
-    group: 'verticies2',
-    type: 'number',
-    value: 5,
-    min,
-    max,
-  });
-  const v2z = useControl('z', {
-    group: 'verticies2',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-
-  const v3x = useControl('x', {
-    group: 'verticies3',
-    type: 'number',
-    value: 3,
-    min,
-    max,
-  });
-  const v3y = useControl('y', {
-    group: 'verticies3',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-  const v3z = useControl('z', {
-    group: 'verticies3',
-    type: 'number',
-    value: 3,
-    min,
-    max,
-  });
-
-  const v4x = useControl('x', {
-    group: 'verticies4',
-    type: 'number',
-    value: 3,
-    min,
-    max,
-  });
-  const v4y = useControl('y', {
-    group: 'verticies4',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-  const v4z = useControl('z', {
-    group: 'verticies4',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-
-  const v5x = useControl('x', {
-    group: 'verticies5',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-  const v5y = useControl('y', {
-    group: 'verticies5',
-    type: 'number',
-    value: 5,
-    min,
-    max,
-  });
-  const v5z = useControl('z', {
-    group: 'verticies5',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-
-  const v6x = useControl('x', {
-    group: 'verticies6',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-  const v6y = useControl('y', {
-    group: 'verticies6',
-    type: 'number',
-    value: 5,
-    min,
-    max,
-  });
-  const v6z = useControl('z', {
-    group: 'verticies6',
-    type: 'number',
-    value: 3,
-    min,
-    max,
-  });
-
-  const v7x = useControl('x', {
-    group: 'verticies7',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-  const v7y = useControl('y', {
-    group: 'verticies7',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-  const v7z = useControl('z', {
-    group: 'verticies7',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-
-  const v8x = useControl('x', {
-    group: 'verticies8',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-  const v8y = useControl('y', {
-    group: 'verticies8',
-    type: 'number',
-    value: 0,
-    min,
-    max,
-  });
-  const v8z = useControl('z', {
-    group: 'verticies8',
-    type: 'number',
-    value: 3,
-    min,
-    max,
-  });
-
+  // const nGeom = React.useMemo(() => geom.clone(), []);
   const nGeom = geom.clone();
-  React.useEffect(() => {
-    const verticies = [
-      new Three.Vector3(v1x, v1y, v1z),
-      new Three.Vector3(v2x, v2y, v2z),
-      new Three.Vector3(v3x, v3y, v3z),
-      new Three.Vector3(v4x, v4y, v4z),
-      new Three.Vector3(v5x, v5y, v5z),
-      new Three.Vector3(v6x, v6y, v6z),
-      new Three.Vector3(v7x, v7y, v7z),
-      new Three.Vector3(v8x, v8y, v8z),
-    ];
 
-    /* eslint-disable functional/immutable-data */
-    nGeom.vertices = verticies;
-    nGeom.verticesNeedUpdate = true;
-    /* eslint-enable functional/immutable-data */
-    nGeom.computeFaceNormals();
-  }, [
-    nGeom,
-    v1x,
-    v1y,
-    v1z,
-    v2x,
-    v2y,
-    v2z,
-    v3x,
-    v3y,
-    v3z,
-    v4x,
-    v4y,
-    v4z,
-    v5x,
-    v5y,
-    v5z,
-    v6x,
-    v6y,
-    v6z,
-    v7x,
-    v7y,
-    v7z,
-    v8x,
-    v8y,
-    v8z,
-  ]);
+  const verticies = Object.keys(state).map((key) => {
+    const { x, y, z } = state[key];
+    return new Three.Vector3(x, y, z);
+  });
+
+  /* eslint-disable functional/immutable-data */
+  nGeom.vertices = verticies;
+  nGeom.verticesNeedUpdate = true;
+  /* eslint-enable functional/immutable-data */
+  nGeom.computeFaceNormals();
 
   return (
     <>
@@ -350,7 +151,37 @@ const Page = (): JSX.Element => {
         <TrackballControls />
         <Stats />
       </Canvas>
-      <Controls />
+      <DatGui data={state} onUpdate={setState}>
+        {Object.keys(state).map((key) => {
+          const vertex = state[key];
+          if (!vertex) return null;
+          return (
+            <DatFolder key={key} title={key} closed>
+              <DatNumber
+                path={`${key}.x`}
+                label="x"
+                min={-10}
+                max={10}
+                step={0.1}
+              />
+              <DatNumber
+                path={`${key}.y`}
+                label="y"
+                min={-10}
+                max={10}
+                step={0.1}
+              />
+              <DatNumber
+                path={`${key}.z`}
+                label="z"
+                min={-10}
+                max={10}
+                step={0.1}
+              />
+            </DatFolder>
+          );
+        })}
+      </DatGui>
     </>
   );
 };
