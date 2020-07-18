@@ -2,8 +2,7 @@ import * as React from 'react';
 import * as Three from 'three';
 import { Canvas } from 'react-three-fiber';
 import { Stats, TrackballControls } from 'drei';
-import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
-import { ParametricGeometries } from 'three/examples/jsm/geometries/ParametricGeometries';
+import { useControl, Controls } from 'react-three-gui';
 
 type PlaneProps = {
   readonly width: number;
@@ -23,7 +22,7 @@ const Plain = ({ width, height }: PlaneProps): JSX.Element => {
   );
 };
 
-const vetices = [
+const verticies = [
   new Three.Vector3(1, 3, 1),
   new Three.Vector3(1, 3, -1),
   new Three.Vector3(1, -1, 1),
@@ -50,15 +49,17 @@ const faces = [
 ];
 
 const geom = new Three.Geometry();
-geom.vertices = vetices;
+/* eslint-disable functional/immutable-data */
+geom.vertices = verticies;
 geom.faces = faces;
+/* eslint-enable functional/immutable-data */
 geom.computeFaceNormals();
 
 type AbstractShapeProps = {
   readonly geometry: Three.Geometry | Three.BufferGeometry;
   readonly material: Three.Material;
   // eslint-disable-next-line functional/prefer-readonly-type
-  readonly position: [number, number, number];
+  readonly position?: [number, number, number];
   readonly castShadow?: boolean;
 };
 
@@ -90,8 +91,232 @@ const lambertMaterial = new Three.MeshLambertMaterial({
 
 const planeWidth = 60;
 const planeHeight = 40;
+const min = -10;
+const max = 10;
 
 const Page = (): JSX.Element => {
+  const v1x = useControl('x', {
+    group: 'verticies1',
+    type: 'number',
+    value: 3,
+    min,
+    max,
+  });
+  const v1y = useControl('y', {
+    group: 'verticies1',
+    type: 'number',
+    value: 5,
+    min,
+    max,
+  });
+  const v1z = useControl('z', {
+    group: 'verticies1',
+    type: 'number',
+    value: 3,
+    min,
+    max,
+  });
+
+  const v2x = useControl('x', {
+    group: 'verticies2',
+    type: 'number',
+    value: 3,
+    min,
+    max,
+  });
+  const v2y = useControl('y', {
+    group: 'verticies2',
+    type: 'number',
+    value: 5,
+    min,
+    max,
+  });
+  const v2z = useControl('z', {
+    group: 'verticies2',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+
+  const v3x = useControl('x', {
+    group: 'verticies3',
+    type: 'number',
+    value: 3,
+    min,
+    max,
+  });
+  const v3y = useControl('y', {
+    group: 'verticies3',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+  const v3z = useControl('z', {
+    group: 'verticies3',
+    type: 'number',
+    value: 3,
+    min,
+    max,
+  });
+
+  const v4x = useControl('x', {
+    group: 'verticies4',
+    type: 'number',
+    value: 3,
+    min,
+    max,
+  });
+  const v4y = useControl('y', {
+    group: 'verticies4',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+  const v4z = useControl('z', {
+    group: 'verticies4',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+
+  const v5x = useControl('x', {
+    group: 'verticies5',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+  const v5y = useControl('y', {
+    group: 'verticies5',
+    type: 'number',
+    value: 5,
+    min,
+    max,
+  });
+  const v5z = useControl('z', {
+    group: 'verticies5',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+
+  const v6x = useControl('x', {
+    group: 'verticies6',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+  const v6y = useControl('y', {
+    group: 'verticies6',
+    type: 'number',
+    value: 5,
+    min,
+    max,
+  });
+  const v6z = useControl('z', {
+    group: 'verticies6',
+    type: 'number',
+    value: 3,
+    min,
+    max,
+  });
+
+  const v7x = useControl('x', {
+    group: 'verticies7',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+  const v7y = useControl('y', {
+    group: 'verticies7',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+  const v7z = useControl('z', {
+    group: 'verticies7',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+
+  const v8x = useControl('x', {
+    group: 'verticies8',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+  const v8y = useControl('y', {
+    group: 'verticies8',
+    type: 'number',
+    value: 0,
+    min,
+    max,
+  });
+  const v8z = useControl('z', {
+    group: 'verticies8',
+    type: 'number',
+    value: 3,
+    min,
+    max,
+  });
+
+  const nGeom = geom.clone();
+  React.useEffect(() => {
+    const verticies = [
+      new Three.Vector3(v1x, v1y, v1z),
+      new Three.Vector3(v2x, v2y, v2z),
+      new Three.Vector3(v3x, v3y, v3z),
+      new Three.Vector3(v4x, v4y, v4z),
+      new Three.Vector3(v5x, v5y, v5z),
+      new Three.Vector3(v6x, v6y, v6z),
+      new Three.Vector3(v7x, v7y, v7z),
+      new Three.Vector3(v8x, v8y, v8z),
+    ];
+
+    /* eslint-disable functional/immutable-data */
+    nGeom.vertices = verticies;
+    nGeom.verticesNeedUpdate = true;
+    /* eslint-enable functional/immutable-data */
+    nGeom.computeFaceNormals();
+  }, [
+    nGeom,
+    v1x,
+    v1y,
+    v1z,
+    v2x,
+    v2y,
+    v2z,
+    v3x,
+    v3y,
+    v3z,
+    v4x,
+    v4y,
+    v4z,
+    v5x,
+    v5y,
+    v5z,
+    v6x,
+    v6y,
+    v6z,
+    v7x,
+    v7y,
+    v7z,
+    v8x,
+    v8y,
+    v8z,
+  ]);
+
   return (
     <>
       <Canvas
@@ -100,7 +325,6 @@ const Page = (): JSX.Element => {
           near: 0.1,
           far: 1000,
           position: [-20, 25, 20],
-          // lookAt: (...args) => {console},
         }}
         shadowMap
         onCreated={({ gl }) => {
@@ -108,8 +332,8 @@ const Page = (): JSX.Element => {
         }}>
         <Plain width={planeWidth} height={planeHeight} />
 
-        <AbstractShape geometry={geom} material={wireframeMaterial} />
-        <AbstractShape geometry={geom} material={lambertMaterial} castShadow />
+        <AbstractShape geometry={nGeom} material={wireframeMaterial} />
+        <AbstractShape geometry={nGeom} material={lambertMaterial} castShadow />
 
         <ambientLight color={0x494949} />
         <spotLight
@@ -126,6 +350,7 @@ const Page = (): JSX.Element => {
         <TrackballControls />
         <Stats />
       </Canvas>
+      <Controls />
     </>
   );
 };
