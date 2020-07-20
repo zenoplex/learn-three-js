@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Three from 'three';
 import { Canvas } from 'react-three-fiber';
 import { Stats, TrackballControls } from 'drei';
-import DatGui, { DatNumber, DatFolder } from 'react-dat-gui';
+import DatGui, { DatNumber, DatFolder, DatButton } from 'react-dat-gui';
 
 type PlaneProps = {
   readonly width: number;
@@ -88,6 +88,11 @@ const lambertMaterial = new Three.MeshLambertMaterial({
   color: 0x44ff44,
   transparent: true,
 });
+const cloneLambertMaterial = new Three.MeshLambertMaterial({
+  opacity: 0.8,
+  color: 0xff44ff,
+  transparent: true,
+});
 
 const planeWidth = 60;
 const planeHeight = 40;
@@ -103,14 +108,18 @@ const Page = (): JSX.Element => {
     v7: { x: 0, y: 0, z: 0 },
     v8: { x: 0, y: 0, z: 3 },
   });
+  const [isCloneEnabled, setIsCloneEnabled] = React.useState(false);
 
   // const nGeom = React.useMemo(() => geom.clone(), []);
   const nGeom = geom.clone();
 
-  const verticies = Object.keys(state).map((key) => {
-    const { x, y, z } = state[key];
-    return new Three.Vector3(x, y, z);
-  });
+  // unsafe typecast
+  const verticies = (Object.keys(state) as readonly (keyof typeof state)[]).map(
+    (key) => {
+      const { x, y, z } = state[key];
+      return new Three.Vector3(x, y, z);
+    },
+  );
 
   /* eslint-disable functional/immutable-data */
   nGeom.vertices = verticies;
@@ -135,6 +144,21 @@ const Page = (): JSX.Element => {
 
         <AbstractShape geometry={nGeom} material={wireframeMaterial} />
         <AbstractShape geometry={nGeom} material={lambertMaterial} castShadow />
+        {isCloneEnabled ? (
+          <>
+            <AbstractShape
+              geometry={nGeom}
+              material={wireframeMaterial}
+              position={[5, 0, 5]}
+            />
+            <AbstractShape
+              geometry={nGeom}
+              material={cloneLambertMaterial}
+              castShadow
+              position={[5, 0, 5]}
+            />
+          </>
+        ) : null}
 
         <ambientLight color={0x494949} />
         <spotLight
@@ -152,7 +176,8 @@ const Page = (): JSX.Element => {
         <Stats />
       </Canvas>
       <DatGui data={state} onUpdate={setState}>
-        {Object.keys(state).map((key) => {
+        {/* unsafe type cast */}
+        {(Object.keys(state) as readonly (keyof typeof state)[]).map((key) => {
           const vertex = state[key];
           if (!vertex) return null;
           return (
@@ -181,6 +206,12 @@ const Page = (): JSX.Element => {
             </DatFolder>
           );
         })}
+        <DatButton
+          label="clone"
+          onClick={() => {
+            setIsCloneEnabled((prevState) => !prevState);
+          }}
+        />
       </DatGui>
     </>
   );
