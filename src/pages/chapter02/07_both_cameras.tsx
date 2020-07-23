@@ -102,27 +102,22 @@ const Page = (): JSX.Element => {
   const colCount = planeWidth / divider;
 
   const cubes = React.useMemo(() => {
-    return (
-      // Could be rewritten using Array.prototype.reduce
-      new Array(rowCount)
-        .fill(null)
-        .map((_, i) => {
-          return new Array(colCount).fill(null).map((_, j) => {
-            return (
-              <Cube
-                key={j + rowCount * i}
-                position={[
-                  -(planeWidth / 2) + 2 + i * divider,
-                  2,
-                  -(planeHeight / 2) + 2 + j * divider,
-                ]}
-              />
-            );
-          });
-        })
-        // Would want to update to node 12 but react-dat-gui causing error some how. So resolving to node 11
-        .flat()
-    );
+    return new Array(rowCount).fill(null).reduce((acc, _, i) => {
+      const cols = new Array(colCount).fill(null).map((_, j) => {
+        return (
+          <Cube
+            key={j + rowCount * i}
+            position={[
+              -(planeWidth / 2) + 2 + i * divider,
+              2,
+              -(planeHeight / 2) + 2 + j * divider,
+            ]}
+          />
+        );
+      });
+
+      return acc.concat(...cols);
+    }, []);
   }, [colCount, rowCount]);
 
   return (
