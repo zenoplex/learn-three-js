@@ -101,7 +101,7 @@ const Page = (): JSX.Element => {
   const rowCount = planeHeight / divider;
   const colCount = planeWidth / divider;
 
-  const cubes = React.useMemo(() => {
+  const cubes: readonly typeof Cube[] = React.useMemo(() => {
     return new Array(rowCount).fill(null).reduce((acc, _, i) => {
       const cols = new Array(colCount).fill(null).map((_, j) => {
         return (
