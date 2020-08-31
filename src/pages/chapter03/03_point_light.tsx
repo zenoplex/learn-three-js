@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Canvas, useResource, useFrame } from 'react-three-fiber';
+import { Canvas, useFrame } from 'react-three-fiber';
 import * as Three from 'three';
-import DatGui, { DatNumber, DatColor, DatBoolean } from 'react-dat-gui';
-import { PointLightHelper } from 'three';
+import DatGui, { DatNumber, DatColor } from 'react-dat-gui';
 
 const BoundingWallMaterial = new Three.MeshPhongMaterial({ color: 0xa0522d });
 
@@ -77,7 +76,17 @@ const Tree = (): JSX.Element => {
   );
 };
 
-const PointLight = (): JSX.Element => {
+type PointLightProps = {
+  readonly color: string;
+  readonly distance: number;
+  readonly rotationSpeed: number;
+};
+
+const PointLight = ({
+  color,
+  distance,
+  rotationSpeed,
+}: PointLightProps): JSX.Element => {
   const sphereLightMesh = React.useMemo(() => {
     const geom = new Three.SphereBufferGeometry(0.2);
     const mat = new Three.MeshBasicMaterial({ color: 0xac6c25 });
@@ -87,8 +96,10 @@ const PointLight = (): JSX.Element => {
   }, []);
   const pointLight = React.useMemo(() => {
     const light = new Three.PointLight('#ccffcc');
+    /* eslint-disable functional/immutable-data */
     light.decay = 0.1;
     light.castShadow = true;
+    /* eslint-enable functional/immutable-data */
     return light;
   }, []);
 
@@ -104,6 +115,7 @@ const PointLight = (): JSX.Element => {
   const phase = React.useRef(0);
 
   useFrame(() => {
+    /* eslint-disable functional/immutable-data */
     pointLight.position.copy(sphereLightMesh.position);
     pointLightHelper.update();
     shadowHelper.update();
@@ -112,10 +124,8 @@ const PointLight = (): JSX.Element => {
       invert.current = invert.current * -1;
       phase.current -= 2 * Math.PI;
     } else {
-      phase.current += 0.1;
+      phase.current += rotationSpeed;
     }
-
-    // console.log(Math.cos(phase.current));
 
     sphereLightMesh.position.x = +(14 * Math.cos(phase.current));
     sphereLightMesh.position.y = 5;
@@ -125,11 +135,12 @@ const PointLight = (): JSX.Element => {
       sphereLightMesh.position.x =
         invert.current * (sphereLightMesh.position.x - 14) + 14;
     }
+    /* eslint-enable functional/immutable-data */
   });
 
   return (
     <>
-      <primitive object={pointLight} />
+      <primitive object={pointLight} color={color} distance={distance} />
       <mesh>
         <sphereBufferGeometry attach="geometry" args={[0.2]} />
         <meshBasicMaterial attach="material" color={0xac6c25} />
@@ -142,9 +153,11 @@ const PointLight = (): JSX.Element => {
 
 const Page = (): JSX.Element => {
   const [state, setState] = React.useState({
-    intensity: 1,
     ambientColor: '#0c0c0c',
-    disableSpotLight: false,
+    pointColor: '#ccffcc',
+    distance: 100,
+    intensity: 1,
+    rotationSpeed: 0.01,
   });
 
   return (
@@ -164,13 +177,19 @@ const Page = (): JSX.Element => {
         <Ground />
         <House />
         <Tree />
-        <PointLight />
+        <PointLight
+          color={state.pointColor}
+          distance={state.distance}
+          rotationSpeed={state.rotationSpeed}
+        />
         <ambientLight color={state.ambientColor} intensity={state.intensity} />
       </Canvas>
       <DatGui data={state} onUpdate={setState}>
-        <DatNumber path="intensity" min={0} max={3} step={0.1} />
         <DatColor path="ambientColor" />
-        <DatBoolean path="disableSpotLight" />
+        <DatColor path="pointColor" />
+        <DatNumber path="intensity" min={0} max={3} step={0.1} />
+        <DatNumber path="distance" min={0} max={100} step={1} />
+        <DatNumber path="rotationSpeed" min={0.01} max={0.1} step={0.01} />
       </DatGui>
     </>
   );
