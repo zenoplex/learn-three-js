@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Canvas, useFrame, useResource } from 'react-three-fiber';
+import { Canvas, useFrame } from 'react-three-fiber';
 import * as Three from 'three';
 import DatGui, {
   DatNumber,
@@ -155,9 +155,9 @@ const DirectionalLight = ({
 };
 
 const Page = (): JSX.Element => {
-  const [planeRef, plane] = useResource<Three.Mesh>();
-  const [cubeRef, cube] = useResource<Three.Mesh>();
-  const [sphereRef, sphere] = useResource<Three.Mesh>();
+  const planeRef = React.useRef<Three.Mesh>(null);
+  const cubeRef = React.useRef<Three.Mesh>(null);
+  const sphereRef = React.useRef<Three.Mesh>(null);
   const [state, setState] = React.useState({
     ambientColor: '#0c0c0c',
     directionalColor: '#ff5808',
@@ -174,19 +174,19 @@ const Page = (): JSX.Element => {
     /* eslint-disable functional/immutable-data */
     switch (state.target) {
       case 'Plane':
-        setTarget(plane);
+        setTarget(planeRef.current);
         break;
       case 'Sphere':
-        setTarget(sphere);
+        setTarget(sphereRef.current);
         break;
       case 'Cube':
-        setTarget(cube);
+        setTarget(cubeRef.current);
         break;
       default:
-        setTarget(plane);
+        setTarget(planeRef.current);
     }
     /* eslint-enable functional/immutable-data */
-  }, [cube, plane, sphere, state.target]);
+  }, [state.target]);
 
   return (
     <>
