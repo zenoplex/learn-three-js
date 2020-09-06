@@ -5,7 +5,7 @@ import {
   Lensflare,
   LensflareElement,
 } from 'three/examples/jsm/objects/Lensflare';
-import DatGui, { DatNumber, DatColor, DatBoolean } from 'react-dat-gui';
+import DatGui, { DatNumber, DatColor } from 'react-dat-gui';
 import { TrackballControls, Stats } from 'drei';
 
 const Plane = React.forwardRef<Three.Mesh>(
