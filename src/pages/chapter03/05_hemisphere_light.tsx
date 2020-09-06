@@ -6,7 +6,7 @@ import { TrackballControls, Stats } from 'drei';
 
 const Plane = React.forwardRef<Three.Mesh>(
   (_, ref): JSX.Element => {
-    const texture = useLoader(Three.TextureLoader, '/grasslight-big.jpg');
+    const texture = useLoader(Three.TextureLoader, '/grasslight_big.jpg');
     /* eslint-disable functional/immutable-data */
     texture.wrapS = Three.RepeatWrapping;
     texture.wrapT = Three.RepeatWrapping;
