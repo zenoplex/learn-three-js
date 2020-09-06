@@ -162,7 +162,6 @@ const Page = (): JSX.Element => {
           fov: 45,
           position: [-20, 10, 45],
         }}
-        gl={{ alpha: true }}
         onCreated={({ gl, camera }) => {
           gl.setClearColor(new Three.Color(0x000000));
           camera.lookAt(new Three.Vector3(-10, 0, 0));
