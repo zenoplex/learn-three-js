@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Three from 'three';
-import { Canvas } from 'react-three-fiber';
+import { Canvas, useFrame, useLoader } from 'react-three-fiber';
 import DatGui, {
   DatString,
   DatNumber,
@@ -10,6 +10,7 @@ import DatGui, {
   DatSelect,
 } from 'react-dat-gui';
 import { Stats, TrackballControls } from 'drei';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 
 const Ground = (): JSX.Element => {
   return (
@@ -25,6 +26,78 @@ const meshMaterial = new Three.MeshBasicMaterial({
   name: 'Basic Material',
   flatShading: true,
 });
+
+const Gopher = React.forwardRef(
+  (_, ref): JSX.Element => {
+    const result = useLoader(OBJLoader, '/obj/gopher.obj');
+
+    React.useMemo(() => {
+      /* eslint-disable functional/immutable-data */
+      result.traverse((child) => {
+        if (child instanceof Three.Mesh) {
+          child.material = meshMaterial;
+        }
+      });
+      /* eslint-enable functional/immutable-data */
+    }, [result]);
+
+    return (
+      <>
+        {result ? (
+          <primitive
+            ref={ref}
+            object={result}
+            scale={[5, 5, 5]}
+            position={[-10, 0, 0]}
+            dispose={null}
+          />
+        ) : null}
+      </>
+    );
+  },
+);
+// eslint-disable-next-line functional/immutable-data
+Gopher.displayName = 'Gopher';
+
+type SketchProps = {
+  readonly selectedMesh: 'gopher' | 'sphere' | 'cube' | 'plane';
+};
+
+const Sketch = ({ selectedMesh }: SketchProps): JSX.Element => {
+  const ref = React.useRef();
+  const step = React.useRef(0);
+  useFrame(() => {
+    /* eslint-disable functional/immutable-data */
+    if (!ref.current) return;
+
+    step.current = step.current + 0.01;
+    ref.current.rotation.y = step.current;
+    /* eslint-enable functional/immutable-data */
+  });
+
+  return (
+    <>
+      {selectedMesh === 'gopher' ? <Gopher ref={ref} /> : null}
+      {selectedMesh === 'sphere' ? (
+        <mesh ref={ref} material={meshMaterial} position={[0, 3, 2]}>
+          <sphereBufferGeometry attach="geometry" args={[14, 20, 20]} />
+        </mesh>
+      ) : null}
+      {selectedMesh === 'cube' ? (
+        <mesh ref={ref} material={meshMaterial} position={[0, 3, 2]}>
+          <boxBufferGeometry attach="geometry" args={[15, 15, 15]} />
+        </mesh>
+      ) : null}
+      {selectedMesh === 'plane' ? (
+        <mesh ref={ref} material={meshMaterial} position={[0, 3, 2]}>
+          <planeBufferGeometry attach="geometry" args={[14, 14, 4, 4]} />
+        </mesh>
+      ) : null}
+      <Ground />
+      <spotLight color={0xffffff} position={[-40, 60, -10]} castShadow />
+    </>
+  );
+};
 
 const Page = (): JSX.Element => {
   const [state, setState] = React.useState({
@@ -47,9 +120,12 @@ const Page = (): JSX.Element => {
     wireframe: false,
     //
     color: `#${meshMaterial.color.getHexString()}`,
+    //
+    selectedMesh: 'sphere' as const,
   });
 
   React.useEffect(() => {
+    /* eslint-disable functional/immutable-data */
     meshMaterial.opacity = state.opacity;
     meshMaterial.transparent = state.transparent;
     meshMaterial.visible = state.visible;
@@ -64,6 +140,7 @@ const Page = (): JSX.Element => {
     meshMaterial.wireframe = state.wireframe;
 
     meshMaterial.color = new Three.Color(state.color);
+    /* eslint-enable functional/immutable-data */
   }, [
     state.color,
     state.colorWrite,
@@ -91,17 +168,7 @@ const Page = (): JSX.Element => {
           gl.setClearColor(0x000000);
         }}>
         <React.Suspense fallback={null}>
-          <mesh material={meshMaterial} position={[0, 3, 2]}>
-            <sphereBufferGeometry attach="geometry" args={[14, 20, 20]} />
-          </mesh>
-          <mesh material={meshMaterial} position={[0, 3, 2]}>
-            <boxBufferGeometry attach="geometry" args={[15, 15, 15]} />
-          </mesh>
-          <mesh material={meshMaterial} position={[0, 3, 2]}>
-            <planeBufferGeometry attach="geometry" args={[14, 14, 4, 4]} />
-          </mesh>
-          <Ground />
-          <spotLight color={0xffffff} position={[-40, 60, -10]} castShadow />
+          <Sketch selectedMesh={state.selectedMesh} />
         </React.Suspense>
         <Stats />
         <TrackballControls />
@@ -113,14 +180,16 @@ const Page = (): JSX.Element => {
           <DatString path="name" />
           <DatNumber path="opacity" min={0} max={1} step={0.01} />
           <DatBoolean path="transparent" />
-          <DatNumber path="overdraw" min={0} max={1} step={0.01} />
           <DatBoolean path="visible" />
-          {/* <DatSelect path="side" /> */}
+          <DatSelect
+            path="side"
+            options={[Three.FrontSide, Three.BackSide, Three.DoubleSide]}
+          />
           <DatBoolean path="premultipliedAlpha" />
           <DatBoolean path="dithering" />
           <DatSelect
             path="shadowSide"
-            options={['FrontSize', 'BackSide', 'BothSides']}
+            options={[null, Three.FrontSide, Three.BackSide, Three.DoubleSide]}
           />
           <DatSelect
             path="vertexColors"
@@ -131,6 +200,10 @@ const Page = (): JSX.Element => {
         <DatFolder title="Three.MeshBasicMaterial" closed>
           <DatColor path="color" />
         </DatFolder>
+        <DatSelect
+          path="selectedMesh"
+          options={['gopher', 'cube', 'sphere', 'plane']}
+        />
       </DatGui>
     </>
   );
