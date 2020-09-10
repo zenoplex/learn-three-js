@@ -64,7 +64,7 @@ type SketchProps = {
 };
 
 const Sketch = ({ selectedMesh }: SketchProps): JSX.Element => {
-  const ref = React.useRef();
+  const ref = React.useRef<Three.Object3D>();
   const step = React.useRef(0);
   useFrame(() => {
     /* eslint-disable functional/immutable-data */
