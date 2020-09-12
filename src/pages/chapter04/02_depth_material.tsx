@@ -133,6 +133,7 @@ const Page = (): JSX.Element => {
   return (
     <>
       <Canvas
+        gl={{ antialias: false }}
         camera={{
           fov: 45,
           position: [-50, 40, 50],
