@@ -203,10 +203,7 @@ const Page = (): JSX.Element => {
             path="shadowSide"
             options={[null, Three.FrontSide, Three.BackSide, Three.DoubleSide]}
           />
-          <DatSelect
-            path="vertexColors"
-            options={[Three.NoColors, Three.FaceColors, Three.VertexColors]}
-          />
+          <DatBoolean path="vertexColors" />
           <DatBoolean path="fog" />
         </DatFolder>
         <DatFolder title="Three.MeshBasicMaterial" closed>
