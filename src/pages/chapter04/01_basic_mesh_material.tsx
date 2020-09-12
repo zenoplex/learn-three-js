@@ -59,11 +59,11 @@ const Gopher = React.forwardRef(
 // eslint-disable-next-line functional/immutable-data
 Gopher.displayName = 'Gopher';
 
-type SketchProps = {
+type SceneProps = {
   readonly selectedMesh: 'gopher' | 'sphere' | 'cube' | 'plane';
 };
 
-const Sketch = ({ selectedMesh }: SketchProps): JSX.Element => {
+const Scene = ({ selectedMesh }: SceneProps): JSX.Element => {
   const ref = React.useRef<Three.Object3D>();
   const step = React.useRef(0);
   useFrame(() => {
@@ -78,6 +78,7 @@ const Sketch = ({ selectedMesh }: SketchProps): JSX.Element => {
   return (
     <>
       {selectedMesh === 'gopher' ? <Gopher ref={ref} /> : null}
+
       {selectedMesh === 'sphere' ? (
         <mesh ref={ref} material={meshMaterial} position={[0, 3, 2]}>
           <sphereBufferGeometry attach="geometry" args={[14, 20, 20]} />
@@ -117,9 +118,12 @@ const Page = (): JSX.Element => {
     shadowSide: meshMaterial.shadowSide,
     vertexColors: meshMaterial.vertexColors,
     fog: meshMaterial.fog,
-    wireframe: false,
     //
     color: `#${meshMaterial.color.getHexString()}`,
+    wireframe: false,
+    wireframeLinewidth: meshMaterial.wireframeLinewidth,
+    wireframeLinejoin: meshMaterial.wireframeLinejoin,
+    wireframeLinecap: meshMaterial.wireframeLinecap,
     //
     selectedMesh: 'sphere' as const,
   });
@@ -138,6 +142,9 @@ const Page = (): JSX.Element => {
     meshMaterial.vertexColors = state.vertexColors;
     meshMaterial.fog = state.fog;
     meshMaterial.wireframe = state.wireframe;
+    meshMaterial.wireframeLinewidth = state.wireframeLinewidth;
+    meshMaterial.wireframeLinejoin = state.wireframeLinejoin;
+    meshMaterial.wireframeLinecap = state.wireframeLinecap;
 
     meshMaterial.color = new Three.Color(state.color);
     /* eslint-enable functional/immutable-data */
@@ -155,6 +162,9 @@ const Page = (): JSX.Element => {
     state.vertexColors,
     state.visible,
     state.wireframe,
+    state.wireframeLinecap,
+    state.wireframeLinejoin,
+    state.wireframeLinewidth,
   ]);
 
   return (
@@ -168,7 +178,7 @@ const Page = (): JSX.Element => {
           gl.setClearColor(0x000000);
         }}>
         <React.Suspense fallback={null}>
-          <Sketch selectedMesh={state.selectedMesh} />
+          <Scene selectedMesh={state.selectedMesh} />
         </React.Suspense>
         <Stats />
         <TrackballControls />
@@ -185,6 +195,8 @@ const Page = (): JSX.Element => {
             path="side"
             options={[Three.FrontSide, Three.BackSide, Three.DoubleSide]}
           />
+          <DatBoolean path="colorWrite" />
+          <DatBoolean path="flatShading" />
           <DatBoolean path="premultipliedAlpha" />
           <DatBoolean path="dithering" />
           <DatSelect
@@ -195,10 +207,20 @@ const Page = (): JSX.Element => {
             path="vertexColors"
             options={[Three.NoColors, Three.FaceColors, Three.VertexColors]}
           />
-          <DatBoolean path="wireframe" />
+          <DatBoolean path="fog" />
         </DatFolder>
         <DatFolder title="Three.MeshBasicMaterial" closed>
           <DatColor path="color" />
+          <DatBoolean path="wireframe" />
+          <DatNumber path="wireframeLinewidth" min={0} max={10} step={0.1} />
+          <DatSelect
+            path="wireframeLinejoin"
+            options={['round', 'bevel', 'miter']}
+          />
+          <DatSelect
+            path="wireframeLinecap"
+            options={['buff', 'round', 'square']}
+          />
         </DatFolder>
         <DatSelect
           path="selectedMesh"
