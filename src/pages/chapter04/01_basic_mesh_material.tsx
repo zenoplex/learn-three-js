@@ -86,7 +86,7 @@ const Scene = ({ selectedMesh }: SceneProps): JSX.Element => {
       ) : null}
       {selectedMesh === 'cube' ? (
         <mesh ref={ref} material={meshMaterial} position={[0, 3, 2]}>
-          <boxBufferGeometry attach="geometry" args={[15, 15, 15]} />
+          <boxGeometry attach="geometry" args={[15, 15, 15]} />
         </mesh>
       ) : null}
       {selectedMesh === 'plane' ? (
@@ -133,12 +133,12 @@ const Page = (): JSX.Element => {
     meshMaterial.opacity = state.opacity;
     meshMaterial.transparent = state.transparent;
     meshMaterial.visible = state.visible;
-    meshMaterial.side = state.side;
+    meshMaterial.side = Number(state.side);
     meshMaterial.colorWrite = state.colorWrite;
     meshMaterial.flatShading = state.flatShading;
     meshMaterial.premultipliedAlpha = state.premultipliedAlpha;
     meshMaterial.dithering = state.dithering;
-    meshMaterial.shadowSide = state.shadowSide;
+    meshMaterial.shadowSide = Number(state.shadowSide);
     meshMaterial.vertexColors = state.vertexColors;
     meshMaterial.fog = state.fog;
     meshMaterial.wireframe = state.wireframe;
