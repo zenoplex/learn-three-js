@@ -10,7 +10,20 @@ import DatGui, {
 
 type Props<T extends Three.Material> = {
   readonly material: T;
-  readonly state: Partial<T> & { readonly color: string };
+  readonly state: {
+    readonly opacity: number;
+    readonly transparent: boolean;
+    readonly visible: boolean;
+    readonly side: Three.Side;
+    readonly colorWrite: boolean;
+    readonly flatShading: boolean;
+    readonly premultipliedAlpha: boolean;
+    readonly dithering: boolean;
+    readonly shadowSide: Three.Side;
+    readonly vertexColors: boolean;
+    readonly fog: boolean;
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly onUpdate: (data: any) => void;
   readonly children: React.ReactNode;
 };
@@ -23,22 +36,17 @@ const BasicMaterialDatFolder = <T extends Three.Material>({
 }: Props<T>): JSX.Element => {
   React.useEffect(() => {
     /* eslint-disable functional/immutable-data */
-
-    (Object.keys(state) as readonly (keyof typeof state)[])
-      .filter(
-        (item) =>
-          item !== 'id' &&
-          item !== 'name' &&
-          item !== 'uuid' &&
-          item !== 'selectedItem',
-      )
-      .forEach((item) => {
-        // @ts-expect-error Not going to do instanceOf check
-        if (item === 'color') material.color = new Three.Color(state.color);
-        else if (item === 'side') material.side = Number(state.side);
-        else if (item === 'shadowSide') material.side = Number(state.side);
-        else if (item in material) material[item] = state[item];
-      });
+    material.opacity = state.opacity;
+    material.transparent = state.transparent;
+    material.visible = state.visible;
+    material.side = Number(state.side);
+    material.colorWrite = state.colorWrite;
+    material.flatShading = state.flatShading;
+    material.premultipliedAlpha = state.premultipliedAlpha;
+    material.dithering = state.dithering;
+    material.shadowSide = Number(state.shadowSide);
+    material.vertexColors = state.vertexColors;
+    material.fog = state.fog;
     /* eslint-enable functional/immutable-data */
   }, [material, state]);
 
