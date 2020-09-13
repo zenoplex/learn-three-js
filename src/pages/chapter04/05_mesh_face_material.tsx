@@ -13,14 +13,15 @@ const materials = [
   new Three.MeshBasicMaterial({ color: 0xffffff }),
 ];
 
+const geometry = new Three.BoxBufferGeometry(2.9, 2.9, 2.9);
+
 const Cube = React.forwardRef(
   (_, ref): JSX.Element => {
     const mesh = React.useMemo(() => {
       const cubes = [...new Array(3)].flatMap((_, x) => {
         return [...new Array(3)].flatMap((_, y) => {
           return [...new Array(3)].flatMap((_, z) => {
-            const geom = new Three.BoxBufferGeometry(2.9, 2.9, 2.9);
-            const cube = new Three.Mesh(geom, materials);
+            const cube = new Three.Mesh(geometry, materials);
             cube.position.set(x * 3 - 3, y * 3 - 3, z * 3 - 3);
             return cube;
           });
