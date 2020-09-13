@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Three from 'three';
 import { Canvas, useFrame, useLoader } from 'react-three-fiber';
-import DatGui, { DatSelect } from 'react-dat-gui';
+import DatGui, { DatBoolean, DatSelect } from 'react-dat-gui';
 import BasicMaterialPropertyDatFolder from '~/components/BasicMaterialPropertyDatFolder';
 import { Stats, TrackballControls } from 'drei';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
@@ -78,10 +78,14 @@ Gopher.displayName = 'Gopher';
 
 type SceneProps = {
   readonly selectedMesh: 'gopher' | 'sphere' | 'cube' | 'plane';
+  readonly isArrowHelperVisible: boolean;
 };
 
-const Scene = ({ selectedMesh }: SceneProps): JSX.Element => {
-  const ref = React.useRef<Three.Object3D>();
+const Scene = ({
+  selectedMesh,
+  isArrowHelperVisible,
+}: SceneProps): JSX.Element => {
+  const ref = React.useRef<Three.Mesh<Three.Geometry>>();
   const step = React.useRef(0);
   useFrame(() => {
     /* eslint-disable functional/immutable-data */
@@ -92,13 +96,45 @@ const Scene = ({ selectedMesh }: SceneProps): JSX.Element => {
     /* eslint-enable functional/immutable-data */
   });
 
+  React.useEffect(() => {
+    if (!ref.current) return;
+
+    ref.current.children.forEach((child) => ref.current?.remove(child));
+
+    if (!isArrowHelperVisible) return;
+
+    const { geometry } = ref.current;
+    const { faces, vertices } = geometry;
+    // I needed to add group for arrow in order to remove them property
+    const group = new Three.Group();
+
+    faces.forEach((face) => {
+      const centroid = new Three.Vector3(0, 0, 0);
+      centroid.add(vertices[face.a]);
+      centroid.add(vertices[face.b]);
+      centroid.add(vertices[face.c]);
+      centroid.divideScalar(3);
+
+      const arrowHelper = new Three.ArrowHelper(
+        face.normal,
+        centroid,
+        2,
+        0x3333ff,
+        0.5,
+        0.5,
+      );
+      group.add(arrowHelper);
+      ref.current?.add(group);
+    });
+  }, [isArrowHelperVisible, selectedMesh]);
+
   return (
     <>
       {selectedMesh === 'gopher' ? <Gopher ref={ref} /> : null}
 
       {selectedMesh === 'sphere' ? (
         <mesh ref={ref} material={meshMaterial} position={[0, 3, 2]}>
-          <sphereBufferGeometry attach="geometry" args={[14, 20, 20]} />
+          <sphereGeometry attach="geometry" args={[14, 20, 20]} />
         </mesh>
       ) : null}
       {selectedMesh === 'cube' ? (
@@ -108,7 +144,7 @@ const Scene = ({ selectedMesh }: SceneProps): JSX.Element => {
       ) : null}
       {selectedMesh === 'plane' ? (
         <mesh ref={ref} material={meshMaterial} position={[0, 3, 2]}>
-          <planeBufferGeometry attach="geometry" args={[14, 14, 4, 4]} />
+          <planeGeometry attach="geometry" args={[14, 14, 4, 4]} />
         </mesh>
       ) : null}
       <Ground />
@@ -137,6 +173,7 @@ const Page = (): JSX.Element => {
     vertexColors: meshMaterial.vertexColors,
     fog: meshMaterial.fog,
     //
+    isArrowHelperVisible: false,
     selectedMesh: 'sphere' as const,
   });
 
@@ -148,20 +185,24 @@ const Page = (): JSX.Element => {
           fov: 45,
           position: [-20, 30, 40],
         }}
-        onCreated={({ gl, camera }) => {
+        onCreated={({ gl }) => {
           gl.setClearColor(0x000000);
           // target is set at TrackbakkControl
           // camera.lookAt(0, -100, -10);
           // camera.updateProjectionMatrix();
         }}>
         <React.Suspense fallback={null}>
-          <Scene selectedMesh={state.selectedMesh} />
+          <Scene
+            selectedMesh={state.selectedMesh}
+            isArrowHelperVisible={state.isArrowHelperVisible}
+          />
         </React.Suspense>
         <Stats />
         <TrackballControls target={[10, 0, 0]} />
       </Canvas>
       <DatGui data={state} onUpdate={setState}>
         <BasicMaterialPropertyDatFolder state={state} material={meshMaterial} />
+        <DatBoolean path="isArrowHelperVisible" />
         <DatSelect
           path="selectedMesh"
           options={['gopher', 'cube', 'sphere', 'plane']}
