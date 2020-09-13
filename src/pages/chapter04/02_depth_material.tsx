@@ -8,7 +8,7 @@ import DatGui, {
   DatButton,
 } from 'react-dat-gui';
 import { Stats, TrackballControls } from 'drei';
-import BasicMaterialDatFolder from '~/components/BasicMaterialPropertyDatGui';
+import BasicMaterialDatFolder from '~/components/BasicMaterialPropertyDatFolder';
 
 type SceneProps = {
   readonly count: number;
