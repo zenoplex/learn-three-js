@@ -1,7 +1,12 @@
 import * as React from 'react';
 import * as Three from 'three';
 import { Canvas, useFrame, useThree } from 'react-three-fiber';
-import { DatNumber, DatBoolean, DatFolder, DatButton } from 'react-dat-gui';
+import DatGui, {
+  DatNumber,
+  DatBoolean,
+  DatFolder,
+  DatButton,
+} from 'react-dat-gui';
 import { Stats, TrackballControls } from 'drei';
 import BasicMaterialDatFolder from '~/components/BasicMaterialPropertyDatGui';
 
@@ -151,11 +156,8 @@ const Page = (): JSX.Element => {
         <Stats />
         <TrackballControls />
       </Canvas>
-
-      <BasicMaterialDatFolder
-        state={state}
-        material={material}
-        onUpdate={setState}>
+      <DatGui data={state} onUpdate={setState}>
+        <BasicMaterialDatFolder state={state} material={material} />
         <DatFolder title="Three.MeshDepthMaterial" closed={false}>
           <DatBoolean path="wireframe" />
           <DatNumber path="wireframeLinewidth" min={0} max={10} step={0.1} />
@@ -175,7 +177,7 @@ const Page = (): JSX.Element => {
         />
         <DatNumber path="near" min={0} max={100} step={1} />
         <DatNumber path="far" min={50} max={1000} step={1} />
-      </BasicMaterialDatFolder>
+      </DatGui>
     </>
   );
 };

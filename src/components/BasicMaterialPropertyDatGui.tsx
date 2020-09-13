@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Three from 'three';
-import DatGui, {
+import {
   DatString,
   DatNumber,
   DatBoolean,
@@ -23,16 +23,12 @@ type Props<T extends Three.Material> = {
     readonly vertexColors: boolean;
     readonly fog: boolean;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly onUpdate: (data: any) => void;
-  readonly children: React.ReactNode;
 };
 
 const BasicMaterialDatFolder = <T extends Three.Material>({
   material,
   state,
-  onUpdate,
-  children,
+  ...props // extra props from DatGui is passed via cloneElement thus required to work
 }: Props<T>): JSX.Element => {
   React.useEffect(() => {
     /* eslint-disable functional/immutable-data */
@@ -51,34 +47,32 @@ const BasicMaterialDatFolder = <T extends Three.Material>({
   }, [material, state]);
 
   return (
-    <DatGui data={state} onUpdate={onUpdate}>
-      <DatFolder title="Three.Material" closed={false}>
-        <DatString path="id" />
-        <DatString path="uuid" />
-        <DatString path="name" />
-        <DatNumber path="opacity" min={0} max={1} step={0.01} />
-        <DatBoolean path="transparent" />
-        <DatBoolean path="visible" />
-        <DatSelect
-          path="side"
-          options={[Three.FrontSide, Three.BackSide, Three.DoubleSide]}
-        />
-        <DatBoolean path="colorWrite" />
-        <DatBoolean path="flatShading" />
-        <DatBoolean path="premultipliedAlpha" />
-        <DatBoolean path="dithering" />
-        <DatSelect
-          path="shadowSide"
-          options={[Three.FrontSide, Three.BackSide, Three.DoubleSide]}
-        />
-        <DatSelect
-          path="vertexColors"
-          options={[Three.NoColors, Three.FaceColors, Three.VertexColors]}
-        />
-        <DatBoolean path="fog" />
-      </DatFolder>
-      {children}
-    </DatGui>
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    <DatFolder title="Three.Material" closed={false} {...props}>
+      <DatString path="id" />
+      <DatString path="uuid" />
+      <DatString path="name" />
+      <DatNumber path="opacity" min={0} max={1} step={0.01} />
+      <DatBoolean path="transparent" />
+      <DatBoolean path="visible" />
+      <DatSelect
+        path="side"
+        options={[Three.FrontSide, Three.BackSide, Three.DoubleSide]}
+      />
+      <DatBoolean path="colorWrite" />
+      <DatBoolean path="flatShading" />
+      <DatBoolean path="premultipliedAlpha" />
+      <DatBoolean path="dithering" />
+      <DatSelect
+        path="shadowSide"
+        options={[Three.FrontSide, Three.BackSide, Three.DoubleSide]}
+      />
+      <DatSelect
+        path="vertexColors"
+        options={[Three.NoColors, Three.FaceColors, Three.VertexColors]}
+      />
+      <DatBoolean path="fog" />
+    </DatFolder>
   );
 };
 
