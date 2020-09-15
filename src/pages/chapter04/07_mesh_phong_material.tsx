@@ -196,7 +196,7 @@ const Page = (): JSX.Element => {
       </Canvas>
       <DatGui data={state} onUpdate={setState}>
         <BasicMaterialPropertyDatFolder state={state} material={material} />
-        <DatFolder title="Three.MeshLambertMaterial" closed={false}>
+        <DatFolder title={material.type} closed={false}>
           <DatColor path="color" />
           <DatColor path="emissive" />
           <DatColor path="specular" />

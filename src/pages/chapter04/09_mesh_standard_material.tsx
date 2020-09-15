@@ -21,7 +21,7 @@ const Ground = (): JSX.Element => {
   );
 };
 
-const material = new Three.MeshToonMaterial({ color: 0x7777ff });
+const material = new Three.MeshStandardMaterial({ color: 0x7777ff });
 
 const computeNormals = (group: Three.Object3D): void => {
   // Remounting causes geometry.attributes to be undefined
@@ -150,6 +150,8 @@ const Page = (): JSX.Element => {
     //
     color: `#${material.color.getHexString()}`,
     emissive: `#${material.emissive.getHexString()}`,
+    metalness: material.metalness,
+    roughness: material.roughness,
     wireframe: material.wireframe,
     wireframeLinewidth: material.wireframeLinewidth,
     //
@@ -160,10 +162,19 @@ const Page = (): JSX.Element => {
     /* eslint-disable  functional/immutable-data */
     material.color = new Three.Color(state.color);
     material.emissive = new Three.Color(state.emissive);
+    material.metalness = state.metalness;
+    material.roughness = state.roughness;
     material.wireframe = state.wireframe;
     material.wireframeLinewidth = state.wireframeLinewidth;
     /* eslint-enable  functional/immutable-data */
-  }, [state.color, state.emissive, state.wireframe, state.wireframeLinewidth]);
+  }, [
+    state.color,
+    state.emissive,
+    state.metalness,
+    state.roughness,
+    state.wireframe,
+    state.wireframeLinewidth,
+  ]);
 
   return (
     <>
@@ -187,6 +198,8 @@ const Page = (): JSX.Element => {
         <DatFolder title={material.type} closed={false}>
           <DatColor path="color" />
           <DatColor path="emissive" />
+          <DatNumber path="metalness" min={0} max={1} step={0.01} />
+          <DatNumber path="roughness" min={0} max={1} step={0.01} />
           <DatBoolean path="wireframe" />
           <DatNumber path="wireframeLinewidth" min={0} max={5} step={0.01} />
         </DatFolder>
