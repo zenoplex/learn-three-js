@@ -18,7 +18,8 @@ const Ground = (): JSX.Element => {
 const meshMaterial = new Three.MeshNormalMaterial();
 
 const computeNormals = (group: Three.Object3D): void => {
-  if (group instanceof Three.Mesh) {
+  // Remounting causes geometry.attributes to be undefined
+  if (group instanceof Three.Mesh && group.geometry.attributes) {
     const tempGeom = new Three.Geometry();
     tempGeom.fromBufferGeometry(group.geometry);
     tempGeom.computeFaceNormals();
