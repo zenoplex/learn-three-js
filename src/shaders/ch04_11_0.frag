@@ -14,9 +14,9 @@ void main2(void) {
   gl_FragColor = color;
 }
 
-#define PI 3.14159
-#define TWO_PI(PI * 2.)
-#define N 68.5
+const float PI = 3.14159;
+const float TWO_PI = PI * 2.;
+const float N = 68.5;
 
 void main(void) {
   vec2 center = (gl_FragCoord.xy);

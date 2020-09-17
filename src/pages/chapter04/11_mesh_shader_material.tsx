@@ -1,16 +1,15 @@
 import * as React from 'react';
 import * as Three from 'three';
 import { Canvas, useFrame } from 'react-three-fiber';
-import DatGui, {
-  DatFolder,
-  DatBoolean,
-  DatSelect,
-  DatNumber,
-} from 'react-dat-gui';
-import BasicMaterialPropertyDatFolder from '~/components/BasicMaterialPropertyDatFolder';
+import DatGui, { DatBoolean } from 'react-dat-gui';
 import { Stats, TrackballControls } from 'drei';
-import vert from '~/shaders/1.vert';
-import frag from '~/shaders/1.frag';
+import vert from '~/shaders/ch04_11_0.vert';
+import frag0 from '~/shaders/ch04_11_0.frag';
+import frag1 from '~/shaders/ch04_11_1.frag';
+import frag2 from '~/shaders/ch04_11_2.frag';
+import frag3 from '~/shaders/ch04_11_3.frag';
+import frag4 from '~/shaders/ch04_11_4.frag';
+import frag5 from '~/shaders/ch04_11_5.frag';
 
 const uniforms = {
   time: {
@@ -27,28 +26,60 @@ const uniforms = {
   },
 };
 
-const material = new Three.ShaderMaterial({
-  uniforms,
-  vertexShader: vert,
-  fragmentShader: frag,
-  transparent: true,
-});
+const createMaterial = (
+  vertexShader: string,
+  fragmentShader: string,
+): Three.ShaderMaterial => {
+  return new Three.ShaderMaterial({
+    uniforms,
+    vertexShader,
+    fragmentShader,
+    transparent: true,
+  });
+};
 
-const Scene = (): JSX.Element => {
+const fragments = [frag0, frag1, frag2, frag3, frag4, frag5];
+
+type SceneProps = {
+  readonly wireframe: boolean;
+};
+
+const Scene = ({ wireframe }: SceneProps): JSX.Element => {
+  const materials = React.useMemo(() => {
+    return fragments.map((fragment) => createMaterial(vert, fragment));
+  }, []);
+
   const ref = React.useRef<Three.Mesh<Three.Geometry>>();
   const step = React.useRef(0);
-  useFrame(() => {
+
+  React.useEffect(() => {
+    /* eslint-disable functional/immutable-data */
+    materials.forEach((material) => {
+      material.wireframe = wireframe;
+    });
+    /* eslint-enable functional/immutable-data */
+  }, [materials, wireframe]);
+
+  useFrame(({ size }) => {
     /* eslint-disable functional/immutable-data */
     if (!ref.current) return;
 
     step.current = step.current + 0.01;
+    ref.current.rotation.x = step.current;
     ref.current.rotation.y = step.current;
+    ref.current.rotation.z = step.current;
+
+    materials.map((material) => {
+      material.uniforms.resolution.value.x = size.width;
+      material.uniforms.resolution.value.y = size.height;
+      material.uniforms.time.value += 0.002;
+    });
     /* eslint-enable functional/immutable-data */
   });
 
   return (
     <>
-      <mesh ref={ref} material={material} position={[0, 3, 2]}>
+      <mesh ref={ref} material={materials} position={[0, 3, 2]}>
         <boxGeometry attach="geometry" args={[15, 15, 15]} />
       </mesh>
 
@@ -60,33 +91,8 @@ const Scene = (): JSX.Element => {
 
 const Page = (): JSX.Element => {
   const [state, setState] = React.useState({
-    id: material.id,
-    uuid: material.uuid,
-    name: material.name,
-    opacity: material.opacity,
-    transparent: material.transparent,
-    // overdraw is deprecated
-    // overdraw: meshMaterial.overdraw,
-    visible: material.visible,
-    side: material.side,
-    colorWrite: material.colorWrite,
-    flatShading: material.flatShading,
-    premultipliedAlpha: material.premultipliedAlpha,
-    dithering: material.dithering,
-    shadowSide: material.shadowSide,
-    vertexColors: material.vertexColors,
-    fog: material.fog,
-    //
-    wireframe: material.wireframe,
-    wireframeLinewidth: material.wireframeLinewidth,
+    wireframe: false,
   });
-
-  React.useEffect(() => {
-    /* eslint-disable  functional/immutable-data */
-    material.wireframe = state.wireframe;
-    material.wireframeLinewidth = state.wireframeLinewidth;
-    /* eslint-enable  functional/immutable-data */
-  }, [state.wireframe, state.wireframeLinewidth]);
 
   return (
     <>
@@ -100,21 +106,13 @@ const Page = (): JSX.Element => {
           gl.setClearColor(0x000000);
         }}>
         <React.Suspense fallback={null}>
-          <Scene />
+          <Scene wireframe={state.wireframe} />
         </React.Suspense>
         <Stats />
         <TrackballControls />
       </Canvas>
       <DatGui data={state} onUpdate={setState}>
-        <BasicMaterialPropertyDatFolder state={state} material={material} />
-        <DatFolder title={material.type} closed={false}>
-          <DatBoolean path="wireframe" />
-          <DatNumber path="wireframeLinewidth" min={0} max={5} step={0.01} />
-        </DatFolder>
-        <DatSelect
-          path="selectedMesh"
-          options={['gopher', 'cube', 'sphere', 'plane']}
-        />
+        <DatBoolean path="wireframe" />
       </DatGui>
     </>
   );
