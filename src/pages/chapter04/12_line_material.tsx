@@ -162,11 +162,6 @@ const Scene = ({ order, size }: SceneProps): JSX.Element => {
     return lines;
   }, [order, size]);
 
-  React.useEffect(() => {
-    /* eslint-disable functional/immutable-data */
-    /* eslint-enable functional/immutable-data */
-  }, []);
-
   useFrame(() => {
     /* eslint-disable functional/immutable-data */
     if (!ref.current) return;
