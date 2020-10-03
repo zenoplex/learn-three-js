@@ -195,7 +195,11 @@ const Page = (): JSX.Element => {
           <DatBoolean path="castShadow" />
           <DatBoolean path="isGroundPlaneVisible" />
         </DatFolder>
-        <BasicMaterialPropertyDatFolder state={state} material={material} />
+        <BasicMaterialPropertyDatFolder
+          state={state}
+          material={material}
+          closed
+        />
         {/* Could not use Fragments due to how DatGui has cloneElement setup */}
         {material instanceof Three.MeshStandardMaterial ? (
           <DatFolder title={material.type} closed={false}>

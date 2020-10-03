@@ -23,11 +23,13 @@ type Props<T extends Three.Material> = {
     readonly vertexColors: boolean;
     readonly fog: boolean;
   };
+  readonly closed?: boolean;
 };
 
 const BasicMaterialDatFolder = <T extends Three.Material>({
   material,
   state,
+  closed = false,
   ...props // extra props from DatGui is passed via cloneElement thus required to work
 }: Props<T>): JSX.Element => {
   React.useEffect(() => {
@@ -48,7 +50,7 @@ const BasicMaterialDatFolder = <T extends Three.Material>({
 
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
-    <DatFolder title="Three.Material" closed={false} {...props}>
+    <DatFolder title="Three.Material" closed={closed} {...props}>
       <DatString path="id" />
       <DatString path="uuid" />
       <DatString path="name" />
