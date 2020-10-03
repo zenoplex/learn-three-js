@@ -6,6 +6,7 @@ import DatGui, {
   DatNumber,
   DatBoolean,
   DatSelect,
+  DatColor,
 } from 'react-dat-gui';
 import BasicMaterialPropertyDatFolder from '~/components/BasicMaterialPropertyDatFolder';
 import { Stats, TrackballControls } from 'drei';
@@ -76,6 +77,8 @@ const Scene = ({
   );
 };
 
+const defaultColor = '#ff0000';
+
 const Page = (): JSX.Element => {
   const [applyMaterial, setApplyMaterial] = React.useState<
     'MeshNormalMaterial' | 'MeshStandardMaterial'
@@ -88,7 +91,7 @@ const Page = (): JSX.Element => {
       material.side = Three.DoubleSide;
       return material;
     } else {
-      const material = new Three.MeshStandardMaterial({ color: 0xff0000 });
+      const material = new Three.MeshStandardMaterial({ color: defaultColor });
       // eslint-disable-next-line functional/immutable-data
       material.side = Three.DoubleSide;
       return material;
@@ -115,15 +118,34 @@ const Page = (): JSX.Element => {
     height: 20,
     widthSegments: 4,
     heightSegments: 4,
-    wireframe: material.wireframe,
     castShadow: true,
     isGroundPlaneVisible: true,
+    //
+    color: defaultColor,
+    emissive: '#000000',
+    metalness: 0.5,
+    roughness: 0.5,
+    wireframe: material.wireframe,
   });
 
   React.useEffect(() => {
-    // eslint-disable-next-line functional/immutable-data
+    /* eslint-disable functional/immutable-data */
     material.wireframe = state.wireframe;
-  }, [material, state.wireframe]);
+    if (material instanceof Three.MeshStandardMaterial) {
+      material.color = new Three.Color(state.color);
+      material.emissive = new Three.Color(state.emissive);
+      material.metalness = state.metalness;
+      material.roughness = state.roughness;
+    }
+    /* eslint-enable functional/immutable-data */
+  }, [
+    material,
+    state.color,
+    state.emissive,
+    state.metalness,
+    state.roughness,
+    state.wireframe,
+  ]);
 
   return (
     <>
@@ -157,7 +179,6 @@ const Page = (): JSX.Element => {
           setState(rest);
           setApplyMaterial(applyMaterial);
         }}>
-        <BasicMaterialPropertyDatFolder state={state} material={material} />
         <DatFolder title="Folder" closed={false}>
           <DatSelect
             path="applyMaterial"
@@ -167,10 +188,24 @@ const Page = (): JSX.Element => {
           <DatNumber path="height" min={0} max={40} step={1} />
           <DatNumber path="widthSegments" min={0} max={10} step={1} />
           <DatNumber path="heightSegments" min={0} max={10} step={1} />
-          <DatBoolean path="wireframe" />
           <DatBoolean path="castShadow" />
           <DatBoolean path="isGroundPlaneVisible" />
         </DatFolder>
+        <BasicMaterialPropertyDatFolder state={state} material={material} />
+        {/* Could not use Fragments due to how DatGui has cloneElement setup */}
+        {material instanceof Three.MeshStandardMaterial ? (
+          <DatFolder title={material.type} closed={false}>
+            <DatColor path="color" />
+            <DatColor path="emissive" />
+            <DatNumber path="metalness" min={0} max={1} step={0.1} />
+            <DatNumber path="roughness" min={0} max={1} step={0.1} />
+            <DatBoolean path="wireframe" />
+          </DatFolder>
+        ) : (
+          <DatFolder title={material.type} closed={false}>
+            <DatBoolean path="wireframe" />
+          </DatFolder>
+        )}
       </DatGui>
     </>
   );
