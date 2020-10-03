@@ -21,8 +21,10 @@ const Ground = (): JSX.Element => {
 };
 
 type SceneProps = {
-  readonly radius: number;
-  readonly segments: number;
+  readonly innerRadius: number;
+  readonly outerRadius: number;
+  readonly thetaSegments: number;
+  readonly phiSegments: number;
   readonly thetaStart: number;
   readonly thetaLength: number;
   readonly material: Three.Material;
@@ -31,8 +33,10 @@ type SceneProps = {
 };
 
 const Scene = ({
-  radius,
-  segments,
+  innerRadius,
+  outerRadius,
+  thetaSegments,
+  phiSegments,
   thetaStart,
   thetaLength,
   material,
@@ -55,8 +59,15 @@ const Scene = ({
   return (
     <>
       <mesh ref={ref} material={material} castShadow={castShadow}>
-        <circleBufferGeometry
-          args={[radius, segments, thetaStart, thetaLength]}
+        <ringBufferGeometry
+          args={[
+            innerRadius,
+            outerRadius,
+            thetaSegments,
+            phiSegments,
+            thetaStart,
+            thetaLength,
+          ]}
           attach="geometry"
         />
       </mesh>
@@ -114,10 +125,12 @@ const Page = (): JSX.Element => {
     vertexColors: material.vertexColors,
     fog: material.fog,
     //
-    radius: 4,
-    segments: 10,
-    thetaStart: 0.3 * Math.PI * 2,
-    thetaLength: 0.3 * Math.PI * 2,
+    innerRadius: 3,
+    outerRadius: 10,
+    thetaSegments: 8,
+    phiSegments: 8,
+    thetaStart: 0,
+    thetaLength: Math.PI * 2,
     castShadow: true,
     isGroundPlaneVisible: true,
     //
@@ -161,8 +174,10 @@ const Page = (): JSX.Element => {
         }}>
         <React.Suspense fallback={null}>
           <Scene
-            radius={state.radius}
-            segments={state.segments}
+            innerRadius={state.innerRadius}
+            outerRadius={state.outerRadius}
+            thetaSegments={state.thetaSegments}
+            phiSegments={state.phiSegments}
             thetaStart={state.thetaStart}
             thetaLength={state.thetaLength}
             material={material}
@@ -184,8 +199,10 @@ const Page = (): JSX.Element => {
             path="applyMaterial"
             options={['MeshNormalMaterial', 'MeshStandardMaterial']}
           />
-          <DatNumber path="radius" min={0} max={40} step={1} />
-          <DatNumber path="segments" min={0} max={40} step={1} />
+          <DatNumber path="innerRadius" min={0} max={40} step={1} />
+          <DatNumber path="outerRadius" min={0} max={40} step={1} />
+          <DatNumber path="thetaSegments" min={0} max={40} step={1} />
+          <DatNumber path="phiSegments" min={0} max={40} step={1} />
           <DatNumber path="thetaStart" min={0} max={Math.PI * 2} step={0.01} />
           <DatNumber path="thetaLength" min={0} max={Math.PI * 2} step={0.01} />
           <DatBoolean path="castShadow" />
