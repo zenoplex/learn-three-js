@@ -63,16 +63,12 @@ const Scene = ({
     switch (type) {
       case 'Icosahedron':
         return new Three.IcosahedronGeometry(radius, detail);
-        break;
       case 'Tetrahedron':
         return new Three.TetrahedronGeometry(radius, detail);
-        break;
       case 'Octahedron':
         return new Three.OctahedronGeometry(radius, detail);
-        break;
       case 'Dodecahedron':
         return new Three.DodecahedronGeometry(radius, detail);
-        break;
       case 'Custom':
         return new Three.PolyhedronGeometry(vertices, indices, radius, detail);
     }
