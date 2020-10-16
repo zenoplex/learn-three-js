@@ -6,6 +6,7 @@ const withTM = require('next-transpile-modules')([
   'three',
   'postprocessing',
   'react-three-gui',
+  'three-js-csg-es6',
 ]);
 
 // eslint-disable-next-line functional/immutable-data
