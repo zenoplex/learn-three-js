@@ -6,6 +6,7 @@ import DatGui, {
   DatNumber,
   DatBoolean,
   DatButton,
+  DatSelect,
 } from 'react-dat-gui';
 import { Stats, TrackballControls } from 'drei';
 import { ThreeBSP } from 'three-js-csg-es6';
@@ -19,6 +20,25 @@ const Ground = (): JSX.Element => {
   );
 };
 
+type Action = 'subtract' | 'intersect' | 'union' | 'none';
+
+const doAction = (
+  subject: ThreeBSP,
+  object: ThreeBSP,
+  action: Action,
+): ThreeBSP => {
+  switch (action) {
+    case 'subtract':
+      return subject.subtract(object);
+    case 'intersect':
+      return subject.intersect(object);
+    case 'union':
+      return subject.union(object);
+    default:
+      return subject;
+  }
+};
+
 type SceneProps = {
   readonly sphere1PosX: number;
   readonly sphere1PosY: number;
@@ -28,10 +48,12 @@ type SceneProps = {
   readonly sphere2PosY: number;
   readonly sphere2PosZ: number;
   readonly sphere2Scale: number;
+  readonly sphere2Action: Action;
   readonly cubePosX: number;
   readonly cubePosY: number;
   readonly cubePosZ: number;
   readonly cubeScale: number;
+  readonly cubeAction: Action;
   readonly rotateResult: boolean;
   readonly hideWireframes: boolean;
   readonly lastRender: number;
@@ -46,10 +68,12 @@ const Scene = ({
   sphere2PosY,
   sphere2PosZ,
   sphere2Scale,
+  sphere2Action,
   cubePosX,
   cubePosY,
   cubePosZ,
   cubeScale,
+  cubeAction,
   rotateResult,
   hideWireframes,
   lastRender,
@@ -68,6 +92,10 @@ const Scene = ({
     /* eslint-enable functional/immutable-data */
   });
 
+  const normalMaterial = React.useMemo(() => {
+    return new Three.MeshNormalMaterial();
+  }, []);
+
   const wireframeMaterial = React.useMemo(() => {
     const mat = new Three.MeshBasicMaterial({
       transparent: true,
@@ -84,7 +112,7 @@ const Scene = ({
   const sphere1Ref = React.useRef<Three.Mesh>(null);
   const sphere2Ref = React.useRef<Three.Mesh>(null);
   const cubeRef = React.useRef<Three.Mesh>(null);
-  const [resultMesh, setResultMesh] = React.useState(null);
+  const [resultMesh, setResultMesh] = React.useState<Three.Mesh | null>(null);
 
   React.useEffect(() => {
     if (!sphere1Ref.current || !sphere2Ref.current || !cubeRef.current) return;
@@ -93,22 +121,22 @@ const Scene = ({
     const sphere2Bsp = new ThreeBSP(sphere2Ref.current);
     const cubeBsp = new ThreeBSP(cubeRef.current);
 
-    const result1Bsp = sphere1Bsp.subtract(sphere2Bsp);
-    const result2Bsp = result1Bsp.subtract(cubeBsp);
+    const result1Bsp = doAction(sphere1Bsp, sphere2Bsp, sphere2Action);
+    const result2Bsp = doAction(result1Bsp, cubeBsp, cubeAction);
 
     const resultMesh = result2Bsp.toMesh();
     resultMesh.geometry.computeFaceNormals();
     resultMesh.geometry.computeVertexNormals();
 
     setResultMesh(resultMesh);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastRender]);
+  }, [lastRender, cubeAction, sphere2Action]);
 
   return (
     <>
       <group ref={ref}>
-        {/* <mesh material={material} geometry={geometry} castShadow={castShadow} /> */}
-        {resultMesh ? <primitive object={resultMesh} /> : null}
+        {resultMesh ? (
+          <primitive object={resultMesh} material={normalMaterial} />
+        ) : null}
       </group>
 
       {!hideWireframes ? (
@@ -164,10 +192,12 @@ const Page = (): JSX.Element => {
     sphere2PosY: 0,
     sphere2PosZ: 0,
     sphere2Scale: 1,
+    sphere2Action: 'subtract' as const,
     cubePosX: -7,
     cubePosY: 0,
     cubePosZ: 0,
     cubeScale: 1,
+    cubeAction: 'subtract' as const,
     rotateResult: false,
     hideWireframes: false,
   });
@@ -196,10 +226,12 @@ const Page = (): JSX.Element => {
             sphere2PosY={state.sphere2PosY}
             sphere2PosZ={state.sphere2PosZ}
             sphere2Scale={state.sphere2Scale}
+            sphere2Action={state.sphere2Action}
             cubePosX={state.cubePosX}
             cubePosY={state.cubePosY}
             cubePosZ={state.cubePosZ}
             cubeScale={state.cubeScale}
+            cubeAction={state.cubeAction}
             rotateResult={state.rotateResult}
             hideWireframes={state.hideWireframes}
             lastRender={lastRender}
@@ -220,12 +252,20 @@ const Page = (): JSX.Element => {
           <DatNumber path="sphere2PosY" min={-15} max={15} step={1} />
           <DatNumber path="sphere2PosZ" min={-15} max={15} step={1} />
           <DatNumber path="sphere2Scale" min={0} max={10} step={1} />
+          <DatSelect
+            path="sphere2Action"
+            options={['subtract', 'intersect', 'union', 'none']}
+          />
         </DatFolder>
         <DatFolder title="Cube" closed={false}>
           <DatNumber path="cubePosX" min={-15} max={15} step={1} />
           <DatNumber path="cubePosY" min={-15} max={15} step={1} />
           <DatNumber path="cubePosZ" min={-15} max={15} step={1} />
           <DatNumber path="cubeScale" min={0} max={10} step={1} />
+          <DatSelect
+            path="cubeAction"
+            options={['subtract', 'intersect', 'union', 'none']}
+          />
         </DatFolder>
         <DatButton
           label="calculate"
