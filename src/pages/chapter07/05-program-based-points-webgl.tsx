@@ -116,6 +116,9 @@ const Scene = ({
     });
   }, [color, opacity, size, sizeAttenuation, transparent, vertexColors]);
 
+  // eslint-disable-next-line functional/immutable-data -- Required to make background transparent
+  pointMaterial.alphaTest = 0.5;
+
   const geometry = React.useMemo(() => {
     const geom = new Three.Geometry();
     const range = 500;

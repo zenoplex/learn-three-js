@@ -50,6 +50,9 @@ const Scene = ({
     });
   }, [color, opacity, sizeAttenuation, texture, transparent]);
 
+  // eslint-disable-next-line functional/immutable-data -- Required to make background transparent
+  spriteMaterial.alphaTest = 0.5;
+
   const sprites = React.useMemo(() => {
     const range = 500;
     return new Array(count).fill(null).map(() => {
