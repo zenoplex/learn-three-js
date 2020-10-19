@@ -1,5 +1,3 @@
-// SpriteCanvasMaterial has been removed since canvas was removed from three.js
-// Instead I used external texture
 import * as React from 'react';
 import * as Three from 'three';
 import { Canvas, useFrame } from 'react-three-fiber';
