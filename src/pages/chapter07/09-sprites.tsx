@@ -5,9 +5,10 @@ import {
   useFrame,
   useLoader,
   useThree,
+  // @ts-expect-error missing type
   createPortal,
 } from 'react-three-fiber';
-import { TrackballControls, Stats } from 'drei';
+import { Stats } from 'drei';
 import DatGui, { DatNumber, DatColor, DatBoolean } from 'react-dat-gui';
 
 type HudProps = {
@@ -16,6 +17,7 @@ type HudProps = {
   readonly color: string;
   readonly transparent: boolean;
   readonly size: number;
+  readonly setSprite: () => void;
 };
 
 const Hud = ({
@@ -24,10 +26,13 @@ const Hud = ({
   opacity,
   color,
   transparent,
+  setSprite,
 }: HudProps): JSX.Element => {
   const { gl, scene, camera, size } = useThree();
   const HudScene = React.useMemo(() => new Three.Scene(), []);
-  const hudCameraRef = React.useRef<Three.OrthographicCamera | null>(null);
+  const hudCameraRef = React.useRef<Three.OrthographicCamera>(null);
+  const spriteRef = React.useRef<Three.Sprite>(null);
+  const velocityRef = React.useRef(new Three.Vector3(5, 0, 0));
   const texture = useLoader(Three.TextureLoader, '/sprite-sheet.png');
   const material = React.useMemo(() => {
     return new Three.SpriteMaterial({
@@ -44,13 +49,28 @@ const Hud = ({
       material.map.offset = new Three.Vector2(0.2 * sprite, 0);
       material.map.repeat = new Three.Vector2(1 / 5, 1);
     }
-    material.blending = Three.AdditiveBlending;
+    // material.blending = Three.AdditiveBlending;
     // make sure the object is always rendered at the front
-    material.depthTest = false;
+    // material.depthTest = false;
     /* eslint-enable functional/immutable-data */
   }, [material, sprite]);
 
   useFrame(() => {
+    /* eslint-disable functional/immutable-data */
+    if (spriteRef.current) {
+      const obj3d = spriteRef.current;
+      obj3d.position.x = obj3d.position.x + velocityRef.current.x;
+
+      if (obj3d.position.x > size.width) {
+        velocityRef.current.setX(-5);
+        setSprite();
+      }
+
+      if (obj3d.position.x < 0) {
+        velocityRef.current.setX(5);
+      }
+    }
+
     // matrix.getInverse(camera.matrix);
     // ref.current.quaternion.setFromRotationMatrix(matrix);
     hudCameraRef.current?.updateProjectionMatrix();
@@ -58,7 +78,8 @@ const Hud = ({
     gl.render(scene, camera);
     gl.autoClear = false;
     gl.clearDepth();
-    gl.render(HudScene, hudCameraRef.current);
+    if (hudCameraRef.current) gl.render(HudScene, hudCameraRef.current);
+    /* eslint-enable functional/immutable-data */
   });
 
   return createPortal(
@@ -72,7 +93,12 @@ const Hud = ({
         near={-10}
         far={10}
       />
+      <mesh position={[100, 100, -10]}>
+        <meshNormalMaterial attach="material" />
+        <boxGeometry attach="material" args={[5, 5, 5]} />
+      </mesh>
       <sprite
+        ref={spriteRef}
         args={[material]}
         scale={[scale, scale, scale]}
         position={[100, 50, -10]}
@@ -83,14 +109,22 @@ const Hud = ({
 };
 
 const Scene = (): JSX.Element => {
+  const { camera } = useThree();
   const ref = React.useRef<Three.Group | null>(null);
-  const step = React.useRef(0);
+  const stepRef = React.useRef(0);
+
+  useFrame(() => {
+    /* eslint-disable functional/immutable-data */
+    stepRef.current = stepRef.current + 0.01;
+    camera.position.y = Math.sin(stepRef.current) * 20;
+    /* eslint-enable functional/immutable-data */
+  });
 
   return (
     <group ref={ref}>
       <mesh>
         <sphereBufferGeometry attach="geometry" args={[15, 20, 20]} />
-        <meshNormalMaterial attach="material" wireframe />
+        <meshNormalMaterial attach="material" />
       </mesh>
     </group>
   );
@@ -99,11 +133,18 @@ const Scene = (): JSX.Element => {
 const Page = (): JSX.Element => {
   const [state, setState] = React.useState({
     sprite: 0,
-    size: 10,
+    size: 150,
     transparent: true,
     opacity: 0.6,
     color: '#ffffff',
   });
+
+  const setSprite = React.useCallback(() => {
+    setState((s) => {
+      const n = s.sprite + 1;
+      return { ...s, sprite: Math.min(n, 4) };
+    });
+  }, []);
 
   return (
     <>
@@ -122,8 +163,8 @@ const Page = (): JSX.Element => {
             opacity={state.opacity}
             color={state.color}
             size={state.size}
+            setSprite={setSprite}
           />
-          <TrackballControls />
         </React.Suspense>
         <Stats />
       </Canvas>
